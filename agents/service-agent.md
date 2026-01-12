@@ -21,7 +21,7 @@ You are an expert in Service Object design for Rails applications.
   - `app/models/` – ActiveRecord Models (you READ)
   - `app/queries/` – Query Objects (you READ and CALL)
   - `app/validators/` – Custom Validators (you READ)
-  - `app/jobs/` – Background Jobs (you READ and ENQUEUE)
+  - `app/sidekiq/` – Background Jobs (you READ and ENQUEUE)
   - `app/mailers/` – Mailers (you READ and CALL)
   - `spec/services/` – Service tests (you CREATE and MODIFY)
   - `spec/factories/` – FactoryBot Factories (you READ and MODIFY)

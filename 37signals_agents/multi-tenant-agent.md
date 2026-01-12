@@ -418,8 +418,8 @@ account_boards_path(account_slug: @account.slug)
 # => /acme/boards
 
 # In views
-<%= link_to "Boards", account_boards_path(Current.account) %>
-<%= link_to @board.name, account_board_path(Current.account, @board) %>
+= link_to "Boards", account_boards_path(Current.account)
+= link_to @board.name, account_board_path(Current.account, @board)
 ```
 
 ## Pattern 4: Account-Scoped Models
@@ -735,42 +735,32 @@ end
 ```
 
 **Account switcher in views:**
-```erb
-<%# app/views/layouts/application.html.erb %>
-<nav>
-  <% if Current.account %>
-    <div class="account-switcher">
-      <%= link_to Current.account.name, account_path(Current.account) %>
+```haml
+-# app/views/layouts/application.html.haml
+%nav
+  - if Current.account
+    .account-switcher
+      = link_to Current.account.name, account_path(Current.account)
 
-      <div class="dropdown">
-        <% current_user.accounts.each do |account| %>
-          <% if account != Current.account %>
-            <%= link_to account.name, account_root_path(account) %>
-          <% end %>
-        <% end %>
+      .dropdown
+        - current_user.accounts.each do |account|
+          - if account != Current.account
+            = link_to account.name, account_root_path(account)
 
-        <%= link_to "Create Account", new_account_path %>
-      </div>
-    </div>
-  <% end %>
-</nav>
+        = link_to "Create Account", new_account_path
 
-<%# app/views/accounts/index.html.erb %>
-<h1>Your Accounts</h1>
+-# app/views/accounts/index.html.haml
+%h1 Your Accounts
 
-<div class="accounts">
-  <% @accounts.each do |account| %>
-    <div class="account-card">
-      <h2><%= link_to account.name, account_root_path(account) %></h2>
+.accounts
+  - @accounts.each do |account|
+    .account-card
+      %h2= link_to account.name, account_root_path(account)
 
-      <p class="role">
-        <%= current_user.role_in(account).to_s.titleize %>
-      </p>
-    </div>
-  <% end %>
-</div>
+      %p.role
+        = current_user.role_in(account).to_s.titleize
 
-<%= link_to "Create New Account", new_account_path, class: "button" %>
+= link_to "Create New Account", new_account_path, class: "button"
 ```
 
 ## Pattern 7: Membership Management
@@ -844,61 +834,41 @@ end
 ```
 
 **Membership views:**
-```erb
-<%# app/views/memberships/index.html.erb %>
-<h1>Members of <%= Current.account.name %></h1>
+```haml
+-# app/views/memberships/index.html.haml
+%h1
+  Members of #{Current.account.name}
 
-<% if Current.membership_admin? %>
-  <%= render "memberships/invite_form" %>
-<% end %>
+- if Current.membership_admin?
+  = render "memberships/invite_form"
 
-<table class="memberships">
-  <thead>
-    <tr>
-      <th>Member</th>
-      <th>Email</th>
-      <th>Role</th>
-      <th>Joined</th>
-      <th></th>
-    </tr>
-  </thead>
+%table.memberships
+  %thead
+    %tr
+      %th Member
+      %th Email
+      %th Role
+      %th Joined
+      %th
+  %tbody
+    - @memberships.each do |membership|
+      %tr
+        %td= membership.user.name
+        %td= membership.user.email
+        %td= membership.role.titleize
+        %td= membership.created_at.to_date
+        %td
+          - if Current.membership_admin? && membership != Current.membership
+            = button_to "Remove",                                   |
+              account_membership_path(Current.account, membership), |
+              method: :delete,                                      |
+              data: { confirm: "Remove #{membership.user.name}?" }  |
 
-  <tbody>
-    <% @memberships.each do |membership| %>
-      <tr>
-        <td><%= membership.user.name %></td>
-        <td><%= membership.user.email %></td>
-        <td><%= membership.role.titleize %></td>
-        <td><%= membership.created_at.to_date %></td>
-        <td>
-          <% if Current.membership_admin? && membership != Current.membership %>
-            <%= button_to "Remove",
-                account_membership_path(Current.account, membership),
-                method: :delete,
-                data: { confirm: "Remove #{membership.user.name}?" } %>
-          <% end %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<%# app/views/memberships/_invite_form.html.erb %>
-<%= form_with url: account_memberships_path(Current.account) do |f| %>
-  <div class="field">
-    <%= f.label :email, "Email address" %>
-    <%= f.email_field :email, required: true %>
-  </div>
-
-  <div class="field">
-    <%= f.label :role %>
-    <%= f.select :role,
-        Membership.roles.keys.map { |r| [r.titleize, r] },
-        selected: "member" %>
-  </div>
-
-  <%= f.submit "Invite Member" %>
-<% end %>
+-# app/views/memberships/_invite_form.html.haml
+= simple_form_for :membership, url: account_memberships_path(Current.account) do |f|
+  = f.input :email, label: "Email address", required: true
+  = f.input :role, collection: Membership.roles.keys.map { |r| [r.titleize, r] }, selected: "member"
+  = f.button :submit, "Invite Member"
 ```
 
 ## Pattern 8: Data Isolation and Security

@@ -308,7 +308,7 @@ Cette branche contiendra l'intégralité de la feature mais ne sera mergée dans
 > Exemple : "Ajouter l'interface utilisateur de filtrage"
 
 **Contenu :**
-- [ ] Formulaire de filtre dans `index.html.erb`
+- [ ] Formulaire de filtre dans `index.html.haml`
 - [ ] Turbo Frame pour le rechargement dynamique
 - [ ] Styling Tailwind
 
@@ -573,9 +573,9 @@ end
 ### Views & Components
 
 #### Nouvelles vues
-- `app/views/resource_name/index.html.erb`
-- `app/views/resource_name/show.html.erb`
-- `app/views/resource_name/_form.html.erb`
+- `app/views/resource_name/index.html.haml`
+- `app/views/resource_name/show.html.haml`
+- `app/views/resource_name/_form.html.haml`
 
 #### Nouveaux components
 **Component :** `FeatureNameComponent`
@@ -593,7 +593,7 @@ end
 ```
 
 #### Modifications de vues existantes
-- [ ] Vue à modifier : `path/to/view.html.erb`
+- [ ] Vue à modifier : `path/to/view.html.haml`
 - [ ] Type de modification : [Ajout d'un lien / Nouveau formulaire / Affichage de données]
 
 ### JavaScript (Stimulus)

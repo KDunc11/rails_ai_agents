@@ -64,21 +64,20 @@ class Board < ApplicationRecord
   has_many :cards
 end
 
-# ✅ GOOD: Fragment caching with cache keys
-<% cache @board do %>
-  <% @board.cards.each do |card| %>
-    <% cache card do %>
-      <%= render card %>
-    <% end %>
-  <% end %>
-<% end %>
-
 # ✅ GOOD: Cache expensive computations
 def statistics
   Rails.cache.fetch([self, "statistics"], expires_in: 1.hour) do
     calculate_statistics
   end
 end
+```
+
+```haml
+-# ✅ GOOD: Fragment caching with cache keys
+- cache @board do
+  - @board.cards.each do |card|
+    - cache card do
+      = render card
 ```
 
 ## Project Knowledge
@@ -88,7 +87,7 @@ end
 - Solid Cache for caching (database-backed, no Redis)
 - Turbo for page refreshes and updates
 - ETags with conditional GET for HTTP caching
-- Fragment caching in ERB views
+- Fragment caching in HAML views
 - Collection caching for lists
 
 **Authentication:**
@@ -257,46 +256,30 @@ end
 ```
 
 **View caching:**
-```erb
-<%# app/views/boards/show.html.erb %>
-<% cache @board do %>
-  <h1><%= @board.name %></h1>
-  <p><%= @board.description %></p>
+```haml
+-# app/views/boards/show.html.haml
+- cache @board do
+  %h1= @board.name
+  %p= @board.description
+  .columns
+    - @board.columns.each do |column|
+      - cache column do
+        .column
+          %h2= column.name
+          .cards
+            - column.cards.each do |card|
+              - cache card do
+                = render card
 
-  <div class="columns">
-    <% @board.columns.each do |column| %>
-      <% cache column do %>
-        <div class="column">
-          <h2><%= column.name %></h2>
-
-          <div class="cards">
-            <% column.cards.each do |card| %>
-              <% cache card do %>
-                <%= render card %>
-              <% end %>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
-    <% end %>
-  </div>
-<% end %>
-
-<%# app/views/cards/_card.html.erb %>
-<% cache card do %>
-  <div class="card" id="<%= dom_id(card) %>">
-    <h3><%= card.title %></h3>
-    <p><%= card.description %></p>
-
-    <div class="comments">
-      <% card.comments.each do |comment| %>
-        <% cache comment do %>
-          <%= render comment %>
-        <% end %>
-      <% end %>
-    </div>
-  </div>
-<% end %>
+-# app/views/cards/_card.html.html
+- cache card do
+  .card{ id: "#{dom_id(card)}" }
+    %h3= card.title
+    %p= card.description
+    .comments
+      - card.comments.each do |comment|
+        - cache comment do
+          = render comment
 ```
 
 **How it works:**
@@ -320,32 +303,26 @@ comment.update!(body: "Updated text")
 
 Cache collections of records efficiently with cache_collection.
 
-```ruby
-# app/views/boards/index.html.erb
-<div class="boards">
-  <%# Cache each board individually %>
-  <% cache_collection @boards, partial: "boards/board" %>
-</div>
+```haml
+-# app/views/boards/index.html.haml
+.boards
+  -# Cache each board individually
+  - cache_collection @boards, partial: "boards/board"
 
-<%# app/views/boards/_board.html.erb %>
-<%# This partial is rendered for each board %>
-<div class="board" id="<%= dom_id(board) %>">
-  <h2><%= board.name %></h2>
-  <p><%= board.description %></p>
+-# app/views/boards/_board.html.haml
+-# This partial is rendered for each board
+.board{ id: "#{dom_id(board)}" }
+  %h2= board.name
+  %p= board.description
+  .meta
+    = board.cards.count
+    cards
 
-  <div class="meta">
-    <%= board.cards.count %> cards
-  </div>
-</div>
-
-<%# Alternative: Manual cache per item %>
-<div class="boards">
-  <% @boards.each do |board| %>
-    <% cache board do %>
-      <%= render "boards/board", board: board %>
-    <% end %>
-  <% end %>
-</div>
+-# Alternative: Manual cache per item
+.boards
+  - @boards.each do |board|
+    - cache board do
+      = render "boards/board", board: board
 ```
 
 **Collection with counter cache:**
@@ -401,71 +378,59 @@ end
 
 Use custom cache keys for complex scenarios.
 
-```ruby
-# app/views/boards/show.html.erb
-<%# Cache with multiple dependencies %>
-<% cache ["board_header", @board, Current.user] do %>
-  <div class="board-header">
-    <h1><%= @board.name %></h1>
+```haml
+-# app/views/boards/show.html.haml
+-# Cache with multiple dependencies
+- cache ["board_header", @board, Current.user] do
+  .board-header
+    %h1= @board.name
+    - if Current.user.can_edit?(@board)
+      = link_to "Edit", edit_board_path(@board)
 
-    <% if Current.user.can_edit?(@board) %>
-      <%= link_to "Edit", edit_board_path(@board) %>
-    <% end %>
-  </div>
-<% end %>
-
-<%# Cache with custom expiration %>
-<% cache ["board_stats", @board], expires_in: 15.minutes do %>
-  <div class="board-stats">
-    <div class="stat">
-      <span class="label">Cards</span>
-      <span class="value"><%= @board.cards.count %></span>
-    </div>
-
-    <div class="stat">
-      <span class="label">Comments</span>
-      <span class="value"><%= @board.cards.joins(:comments).count %></span>
-    </div>
-  </div>
-<% end %>
-
-<%# Cache with skip_digest option for dynamic content %>
-<% cache ["board_activity", @board], skip_digest: true do %>
-  <%= render @board.activities.recent %>
-<% end %>
+-# Cache with custom expiration      
+- cache ["board_stats", @board], expires_in: 15.minutes do
+  .board-stats
+    .stat
+      %span.label Cards
+      %span.value= @board.cards.count
+    .stat
+      %span.label Comments
+      %span.value= @board.cards.joins(:comments).count
+      
+-# Cache with skip_digest option for dynamic content
+- cache ["board_activity", @board], skip_digest: true do
+  = render @board.activities.recent
 ```
 
 **Conditional caching:**
-```ruby
-# app/views/boards/_board.html.erb
-<% cache_if @enable_caching, board do %>
-  <div class="board">
-    <%= board.name %>
-  </div>
-<% end %>
+```haml
+-# app/views/boards/_board.html.haml
+- cache_if @enable_caching, board do
+  .board
+    = board.name
 
-# app/views/boards/show.html.erb
-<% cache_unless Current.user.admin?, @board do %>
-  <%= render @board %>
-<% end %>
+-# app/views/boards/show.html.haml
+- cache_unless Current.user.admin?, @board do
+  = render @board
 ```
 
 **Multi-key caching:**
-```ruby
-# app/views/dashboards/show.html.erb
-<% cache [
-  "dashboard",
-  Current.account,
-  Current.user,
-  @boards.maximum(:updated_at),
-  @projects.maximum(:updated_at),
-  I18n.locale
-] do %>
-  <div class="dashboard">
-    <%= render "boards_summary", boards: @boards %>
-    <%= render "projects_summary", projects: @projects %>
-  </div>
-<% end %>
+```haml
+-# app/views/dashboards/show.html.haml
+:ruby
+ cache [
+   "dashboard",
+   Current.account,
+   Current.user,
+   @boards.maximum(:updated_at),
+   @projects.maximum(:updated_at),
+   I18n.locale
+ ] do
+   content_tag(:div, class: "dashboard") do
+     render("boards_summary", boards: @boards)
+     render("projects_summary", projects: @projects)
+   end
+ end
 ```
 
 ## Pattern 5: Low-Level Caching for Expensive Operations
@@ -920,48 +885,38 @@ end
 
 Cache Turbo Frames for partial page updates.
 
-```ruby
-# app/views/boards/show.html.erb
-<%= turbo_frame_tag "board_header" do %>
-  <% cache [@board, "header"] do %>
-    <h1><%= @board.name %></h1>
-    <p><%= @board.description %></p>
-  <% end %>
-<% end %>
+```haml
+-# app/views/boards/show.html.haml
+= turbo_frame_tag "board_header" do
+  - cache [@board, "header"] do
+    %h1= @board.name
+    %p= @board.description
 
-<%= turbo_frame_tag "board_cards" do %>
-  <% cache [@board, "cards"] do %>
-    <div class="cards">
-      <% cache_collection @board.cards, partial: "cards/card" %>
-    </div>
-  <% end %>
-<% end %>
+= turbo_frame_tag "board_cards" do
+  - cache [@board, "cards"] do
+    .cards
+      - cache_collection @board.cards, partial: "cards/card"
 
-<%= turbo_frame_tag "board_activity" do %>
-  <%# Don't cache real-time activity %>
-  <div class="activity">
-    <%= render @board.activities.recent %>
-  </div>
-<% end %>
+= turbo_frame_tag "board_activity" do
+  .activity
+    = render @board.activities.recent
 ```
 
 **Lazy-loaded cached frames:**
-```erb
-<%# app/views/boards/show.html.erb %>
-<%= turbo_frame_tag "board_statistics", src: board_statistics_path(@board) do %>
-  <p>Loading statistics...</p>
-<% end %>
+```haml
+-# app/views/boards/show.html.haml
+= turbo_frame_tag "board_statistics", src: board_statistics_path(@board) do
+  %p Loading statistics...
 
-<%# app/views/boards/statistics.html.erb %>
-<%= turbo_frame_tag "board_statistics" do %>
-  <% cache [@board, "statistics"], expires_in: 15.minutes do %>
-    <div class="statistics">
-      <%= render "boards/statistics", board: @board %>
-    </div>
-  <% end %>
-<% end %>
+-# app/views/boards/statistics.html.haml
+= turbo_frame_tag "board_statistics" do
+  - cache [@board, "statistics"], expires_in: 15.minutes do
+    .statistics
+      = render "boards/statistics", board: @board
+```
 
-<%# app/controllers/boards/statistics_controller.rb %>
+```ruby
+# app/controllers/boards/statistics_controller.rb
 class Boards::StatisticsController < ApplicationController
   def show
     @board = Current.account.boards.find(params[:board_id])
@@ -1149,24 +1104,21 @@ fresh_when etag: [@board, params[:view]], last_modified: @board.updated_at
 ```
 
 ### Fragment Caching
-```ruby
-# Simple
-<% cache @board do %>
-  <%= render @board %>
-<% end %>
+```haml
+-# Simple
+- cache @board do
+  = render @board
 
-# With expiration
-<% cache @board, expires_in: 15.minutes do %>
-  <%= expensive_render @board %>
-<% end %>
+-# With expiration
+- cache @board, expires_in: 15.minutes do
+  = expensive_render @board
 
-# Custom key
-<% cache ["board", @board, Current.user] do %>
-  <%= render @board %>
-<% end %>
+-# Custom key
+- cache ["board", @board, Current.user] do
+  = render @board
 
-# Collection
-<% cache_collection @boards, partial: "boards/board" %>
+-# Collection
+- cache_collection @boards, partial: "boards/board"
 ```
 
 ### Low-Level Caching
@@ -1220,26 +1172,23 @@ fresh_when @board # Returns 304 if unchanged
 ```
 
 5. **Russian Doll Caching:**
-```ruby
-# Nested caches with touch: true for automatic invalidation
-<% cache @board do %>
-  <% cache @card do %>
-    <%= render @card %>
-  <% end %>
-<% end %>
+```haml
+-# Nested caches with touch: true for automatic invalidation
+- cache @board do
+  - cache @card do
+    = render @card
 ```
 
 6. **Cache Collections:**
-```ruby
-<% cache_collection @boards, partial: "boards/board" %>
+```haml
+- cache_collection @boards, partial: "boards/board"
 ```
 
 7. **Avoid Caching User-Specific Content:**
-```ruby
-# Don't cache if content varies by user
-<% cache_unless Current.user.admin?, @board do %>
-  <%= render @board %>
-<% end %>
+```haml
+-# Don't cache if content varies by user
+- cache_unless Current.user.admin?, @board do
+  = render @board
 ```
 
 ## Boundaries

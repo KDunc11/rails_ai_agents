@@ -15,12 +15,12 @@ You are an expert in ActionMailer for Rails applications.
 
 ## Project Knowledge
 
-- **Tech Stack:** Ruby 3.3, Rails 8.1, ActionMailer, Solid Queue (jobs), Hotwire
+- **Tech Stack:** Ruby 3.3, Rails 8.1, ActionMailer, Sidekiq (jobs), Hotwire
 - **Architecture:**
   - `app/mailers/` – Mailers (you CREATE and MODIFY)
   - `app/views/[mailer_name]/` – Email templates (you CREATE and MODIFY)
   - `app/models/` – ActiveRecord Models (you READ)
-  - `app/presenters/` – Presenters (you READ and USE)
+  - `app/decorators/` – Decorators (you READ and USE)
   - `spec/mailers/` – Mailer tests (you CREATE and MODIFY)
   - `spec/mailers/previews/` – Development previews (you CREATE)
   - `config/environments/` – Email configuration (you READ)
@@ -59,7 +59,7 @@ You are an expert in ActionMailer for Rails applications.
 
 ### Rails 8 Mailer Notes
 
-- **Solid Queue:** Emails sent via `deliver_later` use database-backed queue
+- **Sidekiq:** Emails sent via `deliver_later` use Sidekiq queues
 - **Previews:** Always create previews at `spec/mailers/previews/`
 - **I18n:** Use `I18n.t` for all subject lines and content
 
@@ -90,16 +90,16 @@ app/mailers/
 
 app/views/
 ├── layouts/
-│   └── mailer.html.erb    # Global HTML layout
-│   └── mailer.text.erb    # Global text layout
+│   └── mailer.html.haml    # Global HTML layout
+│   └── mailer.text.haml    # Global text layout
 ├── entity_mailer/
-│   ├── created.html.erb
-│   ├── created.text.erb
-│   ├── updated.html.erb
-│   └── updated.text.erb
+│   ├── created.html.haml
+│   ├── created.text.haml
+│   ├── updated.html.haml
+│   └── updated.text.haml
 └── submission_mailer/
-    ├── new_submission.html.erb
-    └── new_submission.text.erb
+    ├── new_submission.html.haml
+    └── new_submission.text.haml
 ```
 
 ## Mailer Patterns
@@ -290,14 +290,14 @@ end
 
 ### HTML Layout
 
-```erb
-<%# app/views/layouts/mailer.html.erb %>
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
+```haml
+-# app/views/layouts/mailer.html.haml
+!!!
+%html
+  %body
+    %meta{ content: "text/html; charset=utf-8", "http-equiv": "Content-Type" }
+    %meta{ content: "width=device-width, initial-scale=1.0", name: "viewport" }
+    :css
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         line-height: 1.6;
@@ -333,92 +333,85 @@ end
         color: #6b7280;
         font-size: 12px;
       }
-    </style>
-  </head>
-  <body>
-    <div class="header">
-      <h1>AITemplate</h1>
-    </div>
-    <div class="content">
-      <%= yield %>
-    </div>
-    <div class="footer">
-      <p>© <%= Time.current.year %> MyApp. All rights reserved.</p>
-      <p>
-        <%= link_to "Unsubscribe", unsubscribe_url, style: "color: #6b7280;" %>
-      </p>
-    </div>
-  </body>
-</html>
+
+    .header
+      %h1 AITemplate
+
+    .content
+      = yield
+
+    .footer
+      %p
+        © #{Time.current.year} MyApp. All rights reserved.
+      %p
+        = link_to "Unsubscribe", unsubscribe_url, style: "color: #6b7280;"
 ```
 
 ### Text Layout
 
-```erb
-<%# app/views/layouts/mailer.text.erb %>
-===============================================
+```haml
+-# app/views/layouts/mailer.text.haml
+\===============================================
 MyApp
-===============================================
-
-<%= yield %>
-
----
-© <%= Time.current.year %> MyApp
-To unsubscribe: <%= unsubscribe_url %>
+\===============================================
+= yield
+\---
+© #{Time.current.year} MyApp
+To unsubscribe: #{unsubscribe_url}
 ```
 
 ### HTML Email Template
 
-```erb
-<%# app/views/entity_mailer/created.html.erb %>
-<h2>Congratulations <%= @owner.first_name %>!</h2>
+```haml
+-# app/views/entity_mailer/created.html.haml
+%h2
+  Congratulations #{@owner.first_name}!
 
-<p>
-  Your entity <strong><%= @entity.name %></strong> has been successfully created.
-</p>
+%p
+  Your entity
+  %strong= @entity.name
+  has been successfully created.
 
-<p>
+%p
   You can now:
-</p>
 
-<ul>
-  <li>Add items to your collection</li>
-  <li>Customize your entity page</li>
-  <li>Respond to user submissions</li>
-</ul>
+%ul
+  %li Add items to your collection
+  %li Customize your entity page
+  %li Respond to user submissions
 
-<%= link_to "Manage my entity", entity_url(@entity), class: "button" %>
+= link_to "Manage my entity", entity_url(@entity), class: "button"
 
-<p>
-  <strong>Details:</strong><br>
-  Address: <%= @entity.address %><br>
-  Phone: <%= @entity.phone %>
-</p>
+%p
+  %strong Details:
+  %br/
+  Address: #{@entity.address}
+  %br/
+  Phone: #{@entity.phone}
 
-<p>
+%p
   If you have any questions, feel free to contact us at
-  <%= mail_to "support@example.com" %>.
-</p>
+  #{mail_to "support@example.com"}.
 ```
 
 ### Text Email Template
 
-```erb
-<%# app/views/entity_mailer/created.text.erb %>
-Congratulations <%= @owner.first_name %>!
+```haml
+-# app/views/entity_mailer/created.text.haml
+Congratulations #{@owner.first_name}!
 
-Your entity <%= @entity.name %> has been successfully created.
+Your entity #{@entity.name} has been successfully created.
 
 You can now:
-- Add items to your collection
-- Customize your entity page
-- Respond to user submissions
+\- Add items to your collection
+\- Customize your entity page
+\- Respond to user submissions
 
-Manage my entity: <%= entity_url(@entity) %>
+Manage my entity: #{entity_url(@entity)}
 
 Details:
-Address: <%= @entity.address %>
-Phone: <%= @entity.phone %>
+Address: #{@entity.address}
+Phone: #{@entity.phone}
 
 If you have any questions, contact us at support@example.com.
 ```
@@ -648,7 +641,7 @@ end
 ### In a Job
 
 ```ruby
-# app/jobs/weekly_digest_job.rb
+# app/sidekiq/weekly_digest_job.rb
 class WeeklyDigestJob < ApplicationJob
   queue_as :default
 

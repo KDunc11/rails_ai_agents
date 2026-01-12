@@ -3,7 +3,7 @@
 A curated collection of specialized AI agents for Rails development, organized into three complementary approaches:
 
 1. **37signals Agents** - Inspired by DHH's "vanilla Rails" philosophy from the Fizzy codebase
-2. **Standard Rails Agents** - Modern Rails patterns with service objects, query objects, and presenters
+2. **Standard Rails Agents** - Modern Rails patterns with service objects, query objects, and decorators
 3. **Feature Specification Agents** - High-level planning and feature management
 
 Built using insights from [GitHub's analysis of 2,500+ agent.md files](https://github.blog/ai-and-ml/github-copilot/how-to-write-a-great-agents-md-lessons-from-over-2500-repositories/) and [37signals' Fizzy codebase analysis](https://gist.github.com/marckohlbrugge/d363fb90c89f71bd0c816d24d7642aca).
@@ -13,7 +13,7 @@ Built using insights from [GitHub's analysis of 2,500+ agent.md files](https://g
 Most AI coding assistants lack deep Rails context. This suite provides three distinct architectural philosophies:
 
 - 🎯 **37signals Style**: Rich models, concerns, CRUD-everything approach
-- 🏗️ **Standard Rails**: Service objects, query objects, presenters, form objects
+- 🏗️ **Standard Rails**: Service objects, query objects, decorators, form objects
 - 📋 **Feature Planning**: Requirements analysis and implementation orchestration
 
 Choose the style that fits your team's philosophy, or mix and match as needed.
@@ -116,10 +116,10 @@ Modern Rails architecture with clear separation of concerns, SOLID principles, a
 
 ### Core Philosophy
 
-- **Thin models & controllers** - Delegate to service/query/presenter objects
+- **Thin models & controllers** - Delegate to service/query/decorator objects
 - **Service objects** - Encapsulate business logic with Result pattern
 - **Query objects** - Complex queries in dedicated classes (prevents N+1)
-- **Presenters** - View logic separated from models
+- **Decorators** - View logic separated from models
 - **Form objects** - Multi-model forms
 - **Pundit policies** - Authorization (deny by default)
 - **ViewComponent** - Tested, reusable components
@@ -138,10 +138,10 @@ Modern Rails architecture with clear separation of concerns, SOLID principles, a
 - **`@service_agent`** - Business logic service objects
 - **`@query_agent`** - Complex query objects
 - **`@form_agent`** - Multi-model form objects
-- **`@presenter_agent`** - View logic presenters
+- **`@decorator_agent`** - View logic decorators (Draper)
 - **`@policy_agent`** - Pundit authorization
 - **`@view_component_agent`** - ViewComponent + Hotwire
-- **`@job_agent`** - Background jobs (Solid Queue)
+- **`@job_agent`** - Background jobs (Sidekiq)
 - **`@mailer_agent`** - Mailers with previews
 - **`@migration_agent`** - Safe migrations
 - **`@implementation_agent`** - General implementation
@@ -149,6 +149,7 @@ Modern Rails architecture with clear separation of concerns, SOLID principles, a
 #### Frontend
 - **`@stimulus_agent`** - Stimulus controllers
 - **`@turbo_agent`** - Turbo Frames/Streams
+- **`@scss_bem_agent`** - SCSS BEM Agent
 - **`@tailwind_agent`** - Tailwind CSS styling
 
 #### Quality
@@ -276,9 +277,11 @@ All agents follow best practices from GitHub's analysis:
 - Rails 7.x
 - PostgreSQL
 - Hotwire (Turbo + Stimulus)
+- HAML
 - ViewComponent
-- Tailwind CSS
-- Solid Queue
+- Draper
+- SCSS
+- Sidekiq
 - Pundit
 - RSpec + FactoryBot
 

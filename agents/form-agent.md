@@ -21,7 +21,7 @@ You are an expert in Form Objects for Rails applications.
   - `app/models/` – ActiveRecord Models (you READ)
   - `app/validators/` – Custom Validators (you READ and USE)
   - `app/controllers/` – Controllers (you READ and MODIFY)
-  - `app/views/` – ERB Views (you READ and MODIFY)
+  - `app/views/` – HAML Views (you READ and MODIFY)
   - `spec/forms/` – Form tests (you CREATE and MODIFY)
 
 ## Commands You Can Use
@@ -541,76 +541,72 @@ end
 
 ## Usage in Views
 
-### Classic ERB View
+### Simple Form preferred patterns
 
-```erb
-<%# app/views/entities/new.html.erb %>
-<%= form_with model: @form, url: entities_path, local: true do |f| %>
-  <%= render "shared/error_messages", object: @form %>
+- Use `simple_form_for` with `f.input` and `f.button`
+- Prefer `input_html:` and `wrapper_html:` for classes and data attributes
+- Use `as:` for explicit input types (e.g., `as: :text`, `as: :boolean`)
 
-  <%= f.hidden_field :owner_id %>
+```haml
+= simple_form_for @form do |f|
+  = f.input :name, input_html: { class: "input" }
+  = f.input :description, as: :text, input_html: { class: "textarea" }
+  = f.button :submit, "Save"
+```
 
-  <div class="field">
-    <%= f.label :name %>
-    <%= f.text_field :name, class: "input" %>
-  </div>
+### Classic HAML View
 
-  <div class="field">
-    <%= f.label :description %>
-    <%= f.text_area :description, class: "textarea" %>
-  </div>
+```haml
+-# app/views/entities/new.html.haml
+= simple_form_for @form, url: entities_path do |f|
+  = render "shared/error_messages", object: @form
 
-  <div class="field">
-    <%= f.label :address %>
-    <%= f.text_field :address, class: "input" %>
-  </div>
+  = f.hidden_field :owner_id
 
-  <div class="field">
-    <%= f.label :phone %>
-    <%= f.telephone_field :phone, class: "input" %>
-  </div>
+  .field
+    = f.input :name, input_html: { class: "input" }
 
-  <div class="field">
-    <%= f.label :email %>
-    <%= f.email_field :email, class: "input" %>
-  </div>
+  .field
+    = f.input :description, as: :text, input_html: { class: "textarea" }
 
-  <%= f.submit "Create Entity", class: "button is-primary" %>
-<% end %>
+  .field
+    = f.input :address, input_html: { class: "input" }
+
+  .field
+    = f.input :phone, input_html: { class: "input" }
+
+  .field
+    = f.input :email, input_html: { class: "input" }
+
+  = f.button :submit, "Create Entity", class: "button is-primary"
 ```
 
 ### Nested Form with Stimulus
 
-```erb
-<%# app/views/entities/new_with_items.html.erb %>
-<%= form_with model: @form, url: entities_path,
-              data: { controller: "nested-form" } do |f| %>
+```haml
+-# app/views/entities/new_with_items.html.haml
+= simple_form_for @form, url: entities_path,            |
+  html: { data: { controller: "nested-form" } } do |f| |
+  = f.input :name
+  = f.input :description, as: :text
 
-  <%= f.text_field :name %>
-  <%= f.text_area :description %>
+  %div{ "data-nested-form-target": "container" }
+    %h3 Items
 
-  <div data-nested-form-target="container">
-    <h3>Items</h3>
+    %template{ "data-nested-form-target": "template" }
+      .item
+        = f.simple_fields_for :items, OpenStruct.new do |item_f|
+          = item_f.input :name, placeholder: "Item name"
+          = item_f.input :description, as: :text, placeholder: "Description"
+          = item_f.input :price, as: :decimal, input_html: { step: 0.01, placeholder: "Price" }
+          = item_f.input :category, collection: %w[category_a category_b category_c category_d]
 
-    <template data-nested-form-target="template">
-      <div class="item">
-        <%= f.fields_for :items, OpenStruct.new do |item_f| %>
-          <%= item_f.text_field :name, placeholder: "Item name" %>
-          <%= item_f.text_area :description, placeholder: "Description" %>
-          <%= item_f.number_field :price, step: 0.01, placeholder: "Price" %>
-          <%= item_f.select :category, %w[category_a category_b category_c category_d] %>
-          <button type="button" data-action="nested-form#remove">Remove</button>
-        <% end %>
-      </div>
-    </template>
-  </div>
+          %button{ "data-action": "nested-form#remove", type: "button" } Remove
 
-  <button type="button" data-action="nested-form#add">
+  %button{ "data-action": "nested-form#add", type: "button" }
     Add Item
-  </button>
 
-  <%= f.submit "Create" %>
-<% end %>
+  = f.button :submit, "Create"
 ```
 
 ## When to Use a Form Object

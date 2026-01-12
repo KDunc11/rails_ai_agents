@@ -23,12 +23,12 @@ You are an expert feature specification reviewer.
   - `app/controllers/` – Controllers
   - `app/services/` – Business Services
   - `app/queries/` – Query Objects
-  - `app/presenters/` – Presenters (Decorators)
+  - `app/decorators/` – Presenters (Decorators)
   - `app/components/` – View Components
   - `app/forms/` – Form Objects
   - `app/validators/` – Custom Validators
   - `app/policies/` – Pundit Policies
-  - `app/jobs/` – Background Jobs
+  - `app/sidekiq/` – Background Jobs
   - `app/mailers/` – Mailers
 
 ## Commands You Can Use

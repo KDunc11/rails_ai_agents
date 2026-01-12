@@ -115,36 +115,30 @@ end
 
 ### Turbo Stream view
 
-```erb
-<%# app/views/cards/comments/create.turbo_stream.erb %>
+```haml
+-# app/views/cards/comments/create.turbo_stream.haml
+-# Prepend new comment to list
+= turbo_stream.prepend "comments", partial: "cards/comments/comment", locals: { comment: @comment }
 
-<%# Prepend new comment to list %>
-<%= turbo_stream.prepend "comments", partial: "cards/comments/comment", locals: { comment: @comment } %>
+-# Clear the form
+= turbo_stream.update dom_id(@card, :new_comment), partial: "cards/comments/form", locals: { card: @card }
 
-<%# Clear the form %>
-<%= turbo_stream.update dom_id(@card, :new_comment), partial: "cards/comments/form", locals: { card: @card } %>
+-# Update comment count
+= turbo_stream.update dom_id(@card, :comment_count) do
+  = pluralize(@card.comments.count, "comment")
 
-<%# Update comment count %>
-<%= turbo_stream.update dom_id(@card, :comment_count) do %>
-  <%= pluralize(@card.comments.count, "comment") %>
-<% end %>
-
-<%# Show flash message %>
-<%= turbo_stream.prepend "flash" do %>
-  <div class="flash flash--notice">Comment added</div>
-<% end %>
+-# Show flash message
+= turbo_stream.prepend "flash" do
+  .flash.flash--notice Comment added
 ```
 
-```erb
-<%# app/views/cards/comments/destroy.turbo_stream.erb %>
+```haml
+-# app/views/cards/comments/destroy.turbo_stream.haml
 
-<%# Remove comment from DOM %>
-<%= turbo_stream.remove @comment %>
-
-<%# Update count %>
-<%= turbo_stream.update dom_id(@card, :comment_count) do %>
-  <%= pluralize(@card.comments.count, "comment") %>
-<% end %>
+-# Update count
+= turbo_stream.remove @comment
+= turbo_stream.update dom_id(@card, :comment_count) do
+  = pluralize(@card.comments.count, "comment")
 ```
 
 ## Pattern 2: Turbo Stream broadcasts (real-time updates)
@@ -186,15 +180,14 @@ end
 
 ### View subscription
 
-```erb
-<%# app/views/boards/show.html.erb %>
+```haml
+-# app/views/boards/show.html.haml
 
-<%# Subscribe to board's card stream %>
-<%= turbo_stream_from @board, :cards %>
+-# Subscribe to board's card stream
+= turbo_stream_from @board, :cards
 
-<div id="cards">
-  <%= render @board.cards %>
-</div>
+#cards
+  = render @board.cards
 ```
 
 ### Manual broadcasting
@@ -225,17 +218,15 @@ Turbo::StreamsChannel.broadcast_stream_to(@board, :cards, content: turbo_stream.
 
 ### Lazy-loaded frame
 
-```erb
-<%# app/views/cards/show.html.erb %>
+```haml
+-# app/views/cards/show.html.haml
 
-<div class="card">
-  <h1><%= @card.title %></h1>
+.card
+  %h1= @card.title
 
-  <%# Comments load lazily when frame becomes visible %>
-  <%= turbo_frame_tag dom_id(@card, :comments), src: card_comments_path(@card), loading: :lazy do %>
-    <p>Loading comments...</p>
-  <% end %>
-</div>
+  -# Comments load lazily when frame becomes visible
+  = turbo_frame_tag dom_id(@card, :comments), src: card_comments_path(@card), loading: :lazy do
+    %p Loading comments...
 ```
 
 ```ruby
@@ -248,70 +239,60 @@ def index
 end
 ```
 
-```erb
-<%# app/views/cards/comments/_list.html.erb %>
-<%= turbo_frame_tag dom_id(@card, :comments) do %>
-  <div class="comments">
-    <%= render @comments %>
-  </div>
-<% end %>
+```haml
+-# app/views/cards/comments/_list.html.haml
+= turbo_frame_tag dom_id(@card, :comments) do
+  .comments
+    = render @comments
 ```
 
 ### Modal in frame
 
-```erb
-<%# app/views/cards/index.html.erb %>
+```haml
+-# app/views/cards/index.html.haml
 
-<%# Modal frame stays empty until link clicked %>
-<%= turbo_frame_tag "modal" %>
+-# Modal frame stays empty until link clicked
+= turbo_frame_tag "modal"
 
-<%= link_to "New Card", new_card_path, data: { turbo_frame: "modal" } %>
+= link_to "New Card", new_card_path, data: { turbo_frame: "modal" }
 ```
 
-```erb
-<%# app/views/cards/new.html.erb %>
+```haml
+-# app/views/cards/new.html.haml
 
-<%= turbo_frame_tag "modal" do %>
-  <div class="modal">
-    <div class="modal__content">
-      <h2>New Card</h2>
+= turbo_frame_tag "modal" do
+  .modal
+    .modal__content
+      %h2 New Card
 
-      <%= form_with model: @card, data: { turbo_frame: "_top" } do |f| %>
-        <%= f.text_field :title %>
-        <%= f.text_area :body %>
-        <%= f.submit "Create Card" %>
-      <% end %>
+      = simple_form_for @card, html: { data: { turbo_frame: "_top" } } do |f|
+        = f.input :title
+        = f.input :body, as: :text
+        = f.button :submit, "Create Card"
 
-      <%= link_to "Cancel", cards_path, data: { turbo_frame: "_top" } %>
-    </div>
-  </div>
-<% end %>
+      = link_to "Cancel", cards_path, data: { turbo_frame: "_top" }
 ```
 
 ### Inline editing with frame
 
-```erb
-<%# app/views/cards/_card.html.erb %>
+```haml
+-# app/views/cards/_card.html.haml
 
-<%= turbo_frame_tag card do %>
-  <article class="card">
-    <h2><%= link_to card.title, edit_card_path(card) %></h2>
-    <p><%= card.body %></p>
-  </article>
-<% end %>
+= turbo_frame_tag card do
+  %article.card
+    %h2= link_to card.title, edit_card_path(card)
+    %p= card.body
 ```
 
-```erb
-<%# app/views/cards/edit.html.erb %>
+```haml
+-# app/views/cards/edit.html.haml
 
-<%= turbo_frame_tag @card do %>
-  <%= form_with model: @card do |f| %>
-    <%= f.text_field :title %>
-    <%= f.text_area :body %>
-    <%= f.submit "Save" %>
-    <%= link_to "Cancel", @card %>
-  <% end %>
-<% end %>
+= turbo_frame_tag @card do
+  = simple_form_for @card do |f|
+    = f.input :title
+    = f.input :body, as: :text
+    = f.button :submit, "Save"
+    = link_to "Cancel", @card
 ```
 
 ## Pattern 4: Morphing for complex updates
@@ -344,56 +325,55 @@ end
 
 ### Enabling morphing globally
 
-```html
-<!-- Add to application.html.erb -->
-<meta name="turbo-refresh-method" content="morph">
-<meta name="turbo-refresh-scroll" content="preserve">
+```haml
+/ Add to application.html.haml
+%meta{ content: "morph", name: "turbo-refresh-method" }
+%meta{ content: "preserve", name: "turbo-refresh-scroll" }
 ```
 
 ### Per-element morph control
 
-```erb
-<div id="<%= dom_id(@card) %>" data-turbo-permanent>
-  <%# This element persists across page loads %>
-  <video controls autoplay></video>
-</div>
+```haml
+%div{ "data-turbo-permanent": "", id: "#{dom_id(@card)}" }
+  -# This element persists across page loads
+  %video{ autoplay: "", controls: "" }
 
-<div id="sidebar" data-turbo-morph="false">
-  <%# This element always gets replaced, never morphed %>
-</div>
+#sidebar{ "data-turbo-morph": "false" }
+  -# This element always gets replaced, never morphed
 ```
 
 ## Pattern 5: Optimistic UI updates
 
 ### Immediate feedback with Turbo Frames
 
-```erb
-<%# Card with optimistic toggle %>
-<%= turbo_frame_tag dom_id(card, :star) do %>
-  <%= button_to card_star_path(card),
-      method: card.starred? ? :delete : :post,
-      class: "star-button",
-      data: { turbo_frame: dom_id(card, :star) } do %>
-    <%= card.starred? ? "★" : "☆" %>
-  <% end %>
-<% end %>
+```haml
+-# Card with optimistic toggle
+= turbo_frame_tag dom_id(card, :star) do
+  = button_to card_star_path(card),               |
+    method: card.starred? ? :delete : :post,      |
+    class: "star-button",                         |
+    data: { turbo_frame: dom_id(card, :star) } do |
+    = card.starred? ? "★" : "☆"
 ```
 
 ### Optimistic update with immediate DOM change
 
-```erb
-<%# Form with instant feedback %>
-<%= form_with model: @card,
-    data: {
-      controller: "auto-submit",
-      action: "change->auto-submit#submit"
-    } do |f| %>
-  <%= f.check_box :completed,
-      data: {
-        action: "change->card#toggle",
-        turbo_frame: "_self"
-      } %>
-<% end %>
+```haml
+-# Form with instant feedback
+= simple_form_for @card,                               |
+  html: {                                              |
+    data: {                                            |
+      controller: "auto-submit",                       |
+      action: "change->auto-submit#submit"             |
+    }                                                  |
+  } do |f|                                             |
+  = f.input :completed, as: :boolean,                  |
+    input_html: {                                      |
+      data: {                                          |
+        action: "change->card#toggle",                 |
+        turbo_frame: "_self"                           |
+      }                                                |
+    }                                                  |
 ```
 
 ```javascript
@@ -412,37 +392,32 @@ export default class extends Controller {
 
 ### Render streams conditionally
 
-```erb
-<%# app/views/cards/update.turbo_stream.erb %>
+```haml
+-# app/views/cards/update.turbo_stream.haml
 
-<%# Always update the card %>
-<%= turbo_stream.replace @card, partial: "cards/card", locals: { card: @card } %>
+-# Always update the card
+= turbo_stream.replace @card, partial: "cards/card", locals: { card: @card }
 
-<%# Only update sidebar if status changed %>
-<% if @card.saved_change_to_status? %>
-  <%= turbo_stream.update "sidebar_stats" do %>
-    <%= render "boards/stats", board: @card.board %>
-  <% end %>
-<% end %>
+-# Only update sidebar if status changed
+- if @card.saved_change_to_status?
+  = turbo_stream.update "sidebar_stats" do
+    = render "boards/stats", board: @card.board
 
-<%# Only broadcast to others if publicly visible %>
-<% if @card.published? %>
-  <%= turbo_stream.replace @card, partial: "cards/card", locals: { card: @card } %>
-<% end %>
+-# Only broadcast to others if publicly visible
+- if @card.published?
+  = turbo_stream.replace @card, partial: "cards/card", locals: { card: @card }
 ```
 
 ### Targeting multiple elements
 
-```erb
-<%# Update multiple cards at once %>
-<% @cards.each do |card| %>
-  <%= turbo_stream.replace card, partial: "cards/card", locals: { card: card } %>
-<% end %>
+```haml
+-# Update multiple cards at once
+- @cards.each do |card|
+  = turbo_stream.replace card, partial: "cards/card", locals: { card: card }
 
-<%# Update all cards in a column %>
-<%= turbo_stream.update dom_id(@column, :cards) do %>
-  <%= render @column.cards.positioned %>
-<% end %>
+-# Update all cards in a column
+= turbo_stream.update dom_id(@column, :cards) do
+  = render @column.cards.positioned
 ```
 
 ## Pattern 7: Turbo Stream flash messages
@@ -470,13 +445,10 @@ module TurboFlash
 end
 ```
 
-```erb
-<%# app/views/shared/_flash.html.erb %>
-<div class="flash flash--<%= type %>"
-     data-controller="auto-dismiss"
-     data-auto-dismiss-delay-value="5000">
-  <%= message %>
-</div>
+```haml
+-# app/views/shared/_flash.html.haml
+%div{ class: "flash flash--#{type}", "data-auto-dismiss-delay-value": "5000", "data-controller": "auto-dismiss" }
+  = message
 ```
 
 ### In controller
@@ -501,14 +473,11 @@ end
 
 ### Reorderable list
 
-```erb
-<%# app/views/boards/show.html.erb %>
+```haml
+-# app/views/boards/show.html.haml
 
-<div id="columns"
-     data-controller="sortable"
-     data-sortable-url-value="<%= board_columns_reorder_path(@board) %>">
-  <%= render @board.columns %>
-</div>
+#columns{ "data-controller": "sortable", "data-sortable-url-value": "#{board_columns_reorder_path(@board)}" }
+  = render @board.columns
 ```
 
 ```javascript
@@ -564,25 +533,22 @@ end
 
 ### Subscribe to multiple streams
 
-```erb
-<%# app/views/cards/show.html.erb %>
+```haml
+-# app/views/cards/show.html.haml
 
-<%# Subscribe to card updates %>
-<%= turbo_stream_from @card %>
+-# Subscribe to card updates
+= turbo_stream_from @card
 
-<%# Subscribe to card's activity feed %>
-<%= turbo_stream_from @card, :activity %>
+-# Subscribe to card's activity feed
+= turbo_stream_from @card, :activity
 
-<%# Subscribe to user's notifications %>
-<%= turbo_stream_from current_user, :notifications %>
+-# Subscribe to user's notifications
+= turbo_stream_from current_user, :notifications
 
-<div class="card-container">
-  <%= render "cards/container", card: @card %>
-
-  <div id="<%= dom_id(@card, :activity) %>">
-    <%= render "cards/activity", card: @card %>
-  </div>
-</div>
+.card-container
+  = render "cards/container", card: @card
+  %div{ id: "#{dom_id(@card, :activity)}" }
+    = render "cards/activity", card: @card
 ```
 
 ### Broadcast to multiple streams
@@ -621,10 +587,10 @@ end
 
 ### Automatic page refreshes
 
-```html
-<!-- app/views/layouts/application.html.erb -->
-<meta name="turbo-refresh-method" content="morph">
-<meta name="turbo-refresh-scroll" content="preserve">
+```haml
+/ app/views/layouts/application.html.haml
+%meta{ content: "morph", name: "turbo-refresh-method" }
+%meta{ content: "preserve", name: "turbo-refresh-scroll" }
 ```
 
 ### Manual refresh trigger
@@ -671,10 +637,12 @@ module TurboHelper
   end
 
   def turbo_auto_submit_form(**options, &block)
-    form_with **options.merge(
-      data: {
-        controller: "auto-submit",
-        action: "change->auto-submit#submit"
+    simple_form_for **options.merge(
+      html: {
+        data: {
+          controller: "auto-submit",
+          action: "change->auto-submit#submit"
+        }
       }
     ), &block
   end
@@ -748,58 +716,57 @@ end
 ## Common Turbo patterns catalog
 
 ### 1. Create and prepend
-```erb
-<%= turbo_stream.prepend "items", partial: "items/item", locals: { item: @item } %>
+```haml
+= turbo_stream.prepend "items", partial: "items/item", locals: { item: @item }
 ```
 
 ### 2. Update and show flash
-```erb
-<%= turbo_stream.replace @item, partial: "items/item", locals: { item: @item } %>
-<%= turbo_stream.prepend "flash", partial: "shared/flash", locals: { type: :notice, message: "Updated" } %>
+```haml
+= turbo_stream.replace @item, partial: "items/item", locals: { item: @item }
+= turbo_stream.prepend "flash", partial: "shared/flash", locals: { type: :notice, message: "Updated" }
 ```
 
 ### 3. Remove with animation
-```erb
-<%= turbo_stream.replace @item do %>
-  <div class="fade-out" data-controller="auto-remove" data-auto-remove-delay-value="300">
-    <%= render "items/item", item: @item %>
-  </div>
-<% end %>
+```haml
+= turbo_stream.replace @item do
+  .fade-out{ "data-auto-remove-delay-value": "300", "data-controller": "auto-remove" }
+    = render "items/item", item: @item
 ```
 
 ### 4. Replace card and update counts
-```erb
-<%= turbo_stream.replace @card %>
-<%= turbo_stream.update "card_count" do %><%= @board.cards.count %><% end %>
+```haml
+= turbo_stream.replace @card
+= turbo_stream.update "card_count" do
+  = @board.cards.count
 ```
 
 ### 5. Clear form after submit
-```erb
-<%= turbo_stream.prepend "comments", partial: "comments/comment" %>
-<%= turbo_stream.replace "comment_form", partial: "comments/form", locals: { card: @card, comment: Comment.new } %>
+```haml
+= turbo_stream.prepend "comments", partial: "comments/comment"
+= turbo_stream.replace "comment_form", partial: "comments/form", locals: { card: @card, comment: Comment.new }
 ```
 
 ## Turbo Frame targets
 
-```erb
-<!-- _top: Replace entire page -->
-<%= form_with model: @card, data: { turbo_frame: "_top" } %>
+```haml
+/ _top: Replace entire page
+= simple_form_for @card, html: { data: { turbo_frame: "_top" } }
 
-<!-- _self: Update current frame (default) -->
-<%= link_to "Edit", edit_card_path(@card), data: { turbo_frame: "_self" } %>
+/ _self: Update current frame (default)
+= link_to "Edit", edit_card_path(@card), data: { turbo_frame: "_self" }
 
-<!-- Named frame: Target specific frame -->
-<%= link_to "New", new_card_path, data: { turbo_frame: "modal" } %>
+/ Named frame: Target specific frame
+= link_to "New", new_card_path, data: { turbo_frame: "modal" }
 
-<!-- Break out of frame -->
-<%= link_to "Cancel", cards_path, data: { turbo_frame: "_top" } %>
+/ Break out of frame
+= link_to "Cancel", cards_path, data: { turbo_frame: "_top" }
 ```
 
 ## Performance tips
 
 ### 1. Lazy load expensive content
-```erb
-<%= turbo_frame_tag "stats", src: board_stats_path(@board), loading: :lazy %>
+```haml
+= turbo_frame_tag "stats", src: board_stats_path(@board), loading: :lazy
 ```
 
 ### 2. Debounce broadcasts
@@ -820,12 +787,13 @@ turbo_stream.morph dom_id(@board), partial: "boards/show"
 ```
 
 ### 4. Target specific elements
-```erb
-<%# Bad: Updates entire sidebar %>
-<%= turbo_stream.replace "sidebar" %>
+```haml
+-# Bad: Updates entire sidebar
+= turbo_stream.replace "sidebar"
 
-<%# Good: Updates just the count %>
-<%= turbo_stream.update "card_count" do %><%= @board.cards.count %><% end %>
+-# Good: Updates just the count
+= turbo_stream.update "card_count" do
+  = @board.cards.count
 ```
 
 ## Boundaries

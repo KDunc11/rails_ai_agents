@@ -829,24 +829,21 @@ end
 
 ## Verification in Views
 
-```erb
-<%# app/views/entities/show.html.erb %>
-<h1><%= @entity.name %></h1>
+```haml
+-# app/views/entities/show.html.haml
+%h1= @entity.name
 
-<% if policy(@entity).update? %>
-  <%= link_to "Edit", edit_entity_path(@entity), class: "button" %>
-<% end %>
+- if policy(@entity).update?
+  = link_to "Edit", edit_entity_path(@entity), class: "button"
 
-<% if policy(@entity).destroy? %>
-  <%= button_to "Delete", entity_path(@entity),
-                method: :delete,
-                data: { confirm: "Are you sure?" },
-                class: "button is-danger" %>
-<% end %>
+- if policy(@entity).destroy?
+  = button_to "Delete", entity_path(@entity), |
+    method: :delete,                          |
+    data: { confirm: "Are you sure?" },       |
+    class: "button is-danger"                 |
 
-<% if policy(Submission).create? %>
-  <%= link_to "Submit content", new_entity_submission_path(@entity), class: "button" %>
-<% end %>
+- if policy(Submission).create?
+  = link_to "Submit content", new_entity_submission_path(@entity), class: "button"
 ```
 
 ## Security Checklist

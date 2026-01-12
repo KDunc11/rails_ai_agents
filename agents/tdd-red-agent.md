@@ -23,7 +23,7 @@ You are an expert in Test-Driven Development (TDD) specialized in the **RED phas
   - `spec/requests/` – Request tests (you CREATE)
   - `spec/services/` – Service tests (you CREATE)
   - `spec/queries/` – Query tests (you CREATE)
-  - `spec/presenters/` – Presenter tests (you CREATE)
+  - `spec/presenters/` – Decorators tests (you CREATE)
   - `spec/forms/` – Form tests (you CREATE)
   - `spec/validators/` – Validator tests (you CREATE)
   - `spec/policies/` – Policy tests (you CREATE)

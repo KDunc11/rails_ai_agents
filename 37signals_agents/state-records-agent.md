@@ -592,54 +592,43 @@ end
 
 ### Conditional rendering
 
-```erb
-<% if card.closed? %>
-  <div class="card--closed">
-    Closed <%= time_ago_in_words(card.closed_at) %> ago
-    <% if card.closed_by %>
-      by <%= card.closed_by.name %>
-    <% end %>
+```haml
+- if card.closed?
+  .card--closed
+    Closed #{time_ago_in_words(card.closed_at)} ago
+    - if card.closed_by
+      by #{card.closed_by.name}
 
-    <%= button_to "Reopen", card_closure_path(card), method: :delete %>
-  </div>
-<% else %>
-  <%= button_to "Close", card_closure_path(card), method: :post %>
-<% end %>
+    = button_to "Reopen", card_closure_path(card), method: :delete
+- else
+  = button_to "Close", card_closure_path(card), method: :post
 ```
 
 ### Toggle buttons
 
-```erb
-<%= button_to card_goldness_path(card),
-    method: card.golden? ? :delete : :post,
-    class: "toggle-golden",
-    data: { turbo_frame: dom_id(card) } do %>
-  <%= card.golden? ? "★ Ungild" : "☆ Gild" %>
-<% end %>
+```haml
+= button_to card_goldness_path(card),     |
+  method: card.golden? ? :delete : :post, |
+  class: "toggle-golden",                 |
+  data: { turbo_frame: dom_id(card) } do  |
+  = card.golden? ? "★ Ungild" : "☆ Gild"
 ```
 
 ### State badges
 
-```erb
-<div class="card-badges">
-  <% if card.golden? %>
-    <span class="badge badge--golden" title="Gilded <%= card.gilded_at.to_formatted_s(:short) %>">
+```haml
+.card-badges
+  - if card.golden?
+    %span.badge.badge--golden{ title: "Gilded #{card.gilded_at.to_formatted_s(:short)}" }
       ★ Important
-    </span>
-  <% end %>
 
-  <% if card.postponed? %>
-    <span class="badge badge--postponed">
+  - if card.postponed?
+    %span.badge.badge--postponed
       Not Now
-    </span>
-  <% end %>
 
-  <% if card.closed? %>
-    <span class="badge badge--closed">
+  - if card.closed?
+    %span.badge.badge--closed
       Closed
-    </span>
-  <% end %>
-</div>
 ```
 
 ## Common state record examples

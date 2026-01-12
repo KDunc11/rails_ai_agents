@@ -421,19 +421,22 @@ class MagicLinkMailer < ApplicationMailer
 end
 ```
 
-```erb
-<%# app/views/magic_link_mailer/sign_in_instructions.html.erb %>
-<h1>Sign in to <%= app_name %></h1>
+```haml
+-# app/views/magic_link_mailer/sign_in_instructions.html.haml
+%h1
+  Sign in to #{app_name}
 
-<p>Click the link below to sign in:</p>
+%p Click the link below to sign in:
 
-<p><%= link_to "Sign in now", @url %></p>
+%p= link_to "Sign in now", @url
 
-<p>Or enter this code: <strong><%= @magic_link.code %></strong></p>
+%p
+  Or enter this code:
+  %strong= @magic_link.code
 
-<p>This link expires in 15 minutes.</p>
+%p This link expires in 15 minutes.
 
-<p>If you didn't request this, you can safely ignore this email.</p>
+%p If you didn't request this, you can safely ignore this email.
 ```
 
 ## Routes configuration
@@ -534,32 +537,28 @@ end
 
 ## View examples
 
-```erb
-<%# app/views/sessions/new.html.erb %>
-<h1>Sign In</h1>
+```haml
+-# app/views/sessions/new.html.haml
+%h1 Sign In
 
-<%= form_with url: session_path do |f| %>
-  <div>
-    <%= f.label :email_address, "Email" %>
-    <%= f.email_field :email_address, required: true, autofocus: true %>
-  </div>
+= simple_form_for :session, url: session_path do |f|
+  = f.input :email_address, label: "Email", required: true, autofocus: true
 
-  <%= f.submit "Send magic link" %>
-<% end %>
+  = f.button :submit, "Send magic link"
 
-<p>Or <%= link_to "create an account", new_signup_path %></p>
+%p
+  Or #{link_to "create an account", new_signup_path}
 ```
 
-```erb
-<%# app/views/layouts/application.html.erb %>
-<header>
-  <% if authenticated? %>
-    <span>Signed in as <%= current_user.full_name %></span>
-    <%= button_to "Sign out", session_path, method: :delete %>
-  <% else %>
-    <%= link_to "Sign in", new_session_path %>
-  <% end %>
-</header>
+```haml
+-# app/views/layouts/application.html.haml
+%header
+  - if authenticated?
+    %span
+      Signed in as #{current_user.full_name}
+    = button_to "Sign out", session_path, method: :delete
+  - else
+    = link_to "Sign in", new_session_path
 ```
 
 ## Testing authentication

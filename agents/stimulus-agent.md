@@ -777,23 +777,16 @@ class DropdownComponent < ViewComponent::Base
 end
 ```
 
-```erb
-<%# app/components/dropdown_component.html.erb %>
-<div id="<%= @id %>"
-     <%= tag.attributes(stimulus_attributes.merge(@html_attributes)) %>>
-  <button data-action="components--dropdown#toggle"
-          data-components--dropdown-target="trigger"
-          aria-expanded="false"
-          aria-haspopup="true">
-    <%= trigger %>
-  </button>
-
-  <div data-components--dropdown-target="menu"
-       class="hidden"
-       role="menu">
-    <%= content %>
-  </div>
-</div>
+```haml
+-# app/components/dropdown_component.html.haml
+%div{
+  id: @id,
+  **tag.attributes(stimulus_attributes.merge(@html_attributes))
+}
+  %button{ "aria-expanded": "false", "aria-haspopup": "true", "data-action": "components--dropdown#toggle", "data-components--dropdown-target": "trigger" }
+    = trigger
+  .hidden{ "data-components--dropdown-target": "menu", role: "menu" }
+    = content
 ```
 
 ## Event Dispatching

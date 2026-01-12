@@ -69,20 +69,16 @@ You are an expert in Turbo for Rails applications (Turbo Drive, Turbo Frames, an
 
 ### Turbo Drive Configuration
 
-```erb
-<%# app/views/layouts/application.html.erb %>
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="turbo-refresh-method" content="morph">
-    <meta name="turbo-refresh-scroll" content="preserve">
-    <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
-    <%= yield :head %>
-  </head>
-  <body>
-    <%= yield %>
-  </body>
-</html>
+```haml
+-# app/views/layouts/application.html.haml
+!!!
+%html
+  %body
+    %meta{ content: "morph", name: "turbo-refresh-method"}
+    %meta{ content: "preserve", name: "turbo-refresh-scroll"}
+    = turbo_refreshes_with method: :morph, scroll: :preserve
+    = yield :head
+    = yield
 ```
 
 ### Page Refresh with Morphing
@@ -110,19 +106,17 @@ Turbo Drive intercepts link clicks and form submissions, fetches pages via AJAX,
 
 ### Disabling Turbo Drive (When Needed)
 
-```erb
-<%# Disable for a specific link %>
-<%= link_to "External", external_url, data: { turbo: false } %>
+```haml
+-# Disable for a specific link
+= link_to "External", external_url, data: { turbo: false }
 
-<%# Disable for a form %>
-<%= form_with model: @resource, data: { turbo: false } do |f| %>
-  <%# Full page reload on submit %>
-<% end %>
+-# Disable for a form
+= simple_form_for @resource, html: { data: { turbo: false } } do |f|
+  -# Full page reload on submit  
 
-<%# Disable for a section %>
-<div data-turbo="false">
-  <%# All links/forms here bypass Turbo %>
-</div>
+-# Disable for a section
+%div{ "data-turbo": "false" }
+  -# All links/forms here bypass Turbo
 ```
 
 ### Turbo Drive Progress Bar
@@ -142,118 +136,108 @@ Turbo.setProgressBarDelay(200)
 
 ### Prefetching Links
 
-```erb
-<%# Prefetch on hover (Turbo 8 default) %>
-<%= link_to "Resource", resource_path(@resource) %>
+```haml
+-# Prefetch on hover (Turbo 8 default)
+= link_to "Resource", resource_path(@resource)
 
-<%# Disable prefetch for specific links %>
-<%= link_to "Heavy Page", heavy_path, data: { turbo_prefetch: false } %>
+-# Disable prefetch for specific links
+= link_to "Heavy Page", heavy_path, data: { turbo_prefetch: false }
 
-<%# Prefetch immediately (eager) %>
-<%= link_to "Important", important_path, data: { turbo_prefetch: "eager" } %>
+-# Prefetch immediately (eager)
+= link_to "Important", important_path, data: { turbo_prefetch: "eager" }
 ```
 
 ## Turbo Frames
 
 ### Basic Frame Structure
 
-```erb
-<%# app/views/resources/index.html.erb %>
-<h1>Resources</h1>
+```haml
+-# app/views/resources/index.html.haml
+%h1 Resources
 
-<%# This frame can be updated independently %>
-<%= turbo_frame_tag "resources" do %>
-  <% @resources.each do |resource| %>
-    <%= render resource %>
-  <% end %>
+-# This frame can be updated independently
+= turbo_frame_tag "resources" do
+  - @resources.each do |resource|
+    = render resource
 
-  <%# Pagination stays in frame %>
-  <%= paginate @resources %>
-<% end %>
+  -# Pagination stays in frame
+  = paginate @resources
 ```
 
 ### Frame Navigation
 
-```erb
-<%# Link navigates within the frame %>
-<%= turbo_frame_tag "resource_#{@resource.id}" do %>
-  <%= link_to @resource.name, edit_resource_path(@resource) %>
-<% end %>
+```haml
+-# Link navigates within the frame
+= turbo_frame_tag "resource_#{@resource.id}" do
+  = link_to @resource.name, edit_resource_path(@resource)
 
-<%# edit.html.erb must have matching frame %>
-<%= turbo_frame_tag "resource_#{@resource.id}" do %>
-  <%= render "form", resource: @resource %>
-<% end %>
+-# edit.html.haml must have matching frame
+= turbo_frame_tag "resource_#{@resource.id}" do
+  = render "form", resource: @resource
 ```
 
 ### Breaking Out of Frames
 
-```erb
-<%# Break out to full page %>
-<%= link_to "View All", resources_path, data: { turbo_frame: "_top" } %>
+```haml
+-# Break out to full page
+= link_to "View All", resources_path, data: { turbo_frame: "_top" }
 
-<%# Target a different frame %>
-<%= link_to "Preview", preview_path, data: { turbo_frame: "preview_panel" } %>
+-# Target a different frame
+= link_to "Preview", preview_path, data: { turbo_frame: "preview_panel" }
 ```
 
 ### Lazy Loading Frames
 
-```erb
-<%# Load content lazily when frame enters viewport %>
-<%= turbo_frame_tag "comments",
-                    src: comments_path(@post),
-                    loading: :lazy do %>
-  <div class="animate-pulse">Loading comments...</div>
-<% end %>
+```haml
+-# Load content lazily when frame enters viewport
+= turbo_frame_tag "comments", |
+  src: comments_path(@post),  |
+  loading: :lazy do           |
+  .animate-pulse Loading comments...
 ```
 
 ### Frame with Loading State
 
-```erb
-<%# app/views/resources/index.html.erb %>
-<%= turbo_frame_tag "search_results",
-                    data: { turbo_frame_loading: "eager" } do %>
-  <%= render @resources %>
-<% end %>
+```haml
+-# app/views/resources/index.html.haml
+= turbo_frame_tag "search_results",         |
+  data: { turbo_frame_loading: "eager" } do |
+  = render @resources
 
-<%# CSS for loading state %>
-<style>
+-# CSS for loading state
+:css
   turbo-frame[busy] {
     opacity: 0.5;
     pointer-events: none;
   }
-</style>
 ```
 
 ### Inline Editing with Frames
 
-```erb
-<%# app/views/resources/_resource.html.erb %>
-<%= turbo_frame_tag dom_id(resource) do %>
-  <div class="resource-card">
-    <h3><%= resource.name %></h3>
-    <p><%= resource.description %></p>
-    <%= link_to "Edit", edit_resource_path(resource), class: "btn" %>
-  </div>
-<% end %>
+```haml
+-# app/views/resources/_resource.html.haml
+= turbo_frame_tag dom_id(resource) do
+  .resource-card
+    %h3= resource.name
+    %p= resource.description
+    = link_to "Edit", edit_resource_path(resource), class: "btn"
 
-<%# app/views/resources/edit.html.erb %>
-<%= turbo_frame_tag dom_id(@resource) do %>
-  <%= render "form", resource: @resource %>
-<% end %>
+-# app/views/resources/edit.html.haml
+= turbo_frame_tag dom_id(@resource) do
+  = render "form", resource: @resource
 ```
 
 ### Frame Best Practices
 
-```erb
-<%# ✅ GOOD - Stable, predictable frame IDs %>
-<%= turbo_frame_tag dom_id(@resource) %>
-<%= turbo_frame_tag "resource_#{@resource.id}" %>
-<%= turbo_frame_tag "comments_list" %>
+```haml
+-# ✅ GOOD - Stable, predictable frame IDs
+= turbo_frame_tag dom_id(@resource)
+= turbo_frame_tag "resource_#{@resource.id}"
+= turbo_frame_tag "comments_list"
 
-<%# ❌ BAD - Dynamic/unpredictable IDs %>
-<%= turbo_frame_tag "frame_#{rand(1000)}" %>
-<%= turbo_frame_tag @resource.updated_at.to_i %>
+-# ❌ BAD - Dynamic/unpredictable IDs
+= turbo_frame_tag "frame_#{rand(1000)}"
+= turbo_frame_tag @resource.updated_at.to_i
 ```
 
 ## Turbo Streams
@@ -283,7 +267,7 @@ class ResourcesController < ApplicationController
 
     respond_to do |format|
       if @resource.save
-        format.turbo_stream  # Renders create.turbo_stream.erb
+        format.turbo_stream  # Renders create.turbo_stream.haml
         format.html { redirect_to @resource, notice: "Created!" }
       else
         format.turbo_stream do
@@ -325,7 +309,7 @@ class ResourcesController < ApplicationController
     @resource.destroy!
 
     respond_to do |format|
-      format.turbo_stream  # Renders destroy.turbo_stream.erb
+      format.turbo_stream  # Renders destroy.turbo_stream.haml
       format.html { redirect_to resources_path, notice: "Deleted!" }
     end
   end
@@ -334,61 +318,55 @@ end
 
 ### Turbo Stream Templates
 
-```erb
-<%# app/views/resources/create.turbo_stream.erb %>
+```haml
+-# app/views/resources/create.turbo_stream.haml
 
-<%# Add new resource to list %>
-<%= turbo_stream.prepend "resources" do %>
-  <%= render @resource %>
-<% end %>
+-# Add new resource to list
+= turbo_stream.prepend "resources" do
+  = render @resource
 
-<%# Clear the form %>
-<%= turbo_stream.replace "resource_form" do %>
-  <%= render "form", resource: Resource.new %>
-<% end %>
+-# Clear the form
+= turbo_stream.replace "resource_form" do
+  = render "form", resource: Resource.new
 
-<%# Show flash message %>
-<%= turbo_stream.prepend "flash" do %>
-  <%= render "shared/flash", message: "Resource created!", type: :success %>
-<% end %>
+-# Show flash message
+= turbo_stream.prepend "flash" do
+  = render "shared/flash", message: "Resource created!", type: :success
 ```
 
-```erb
-<%# app/views/resources/update.turbo_stream.erb %>
+```haml
+-# app/views/resources/update.turbo_stream.haml
 
-<%# Update the resource in place %>
-<%= turbo_stream.replace dom_id(@resource) do %>
-  <%= render @resource %>
-<% end %>
+-# Update the resource in place
+= turbo_stream.replace dom_id(@resource) do
+  = render @resource
 
-<%# Show flash %>
-<%= turbo_stream.prepend "flash" do %>
-  <%= render "shared/flash", message: "Resource updated!", type: :success %>
-<% end %>
+-# Show flash
+= turbo_stream.prepend "flash" do
+  = render "shared/flash", message: "Resource updated!", type: :success
 ```
 
-```erb
-<%# app/views/resources/destroy.turbo_stream.erb %>
+```haml
+-# app/views/resources/destroy.turbo_stream.haml
 
-<%# Remove from DOM %>
-<%= turbo_stream.remove dom_id(@resource) %>
+-# Remove from DOM
+= turbo_stream.remove dom_id(@resource)
 
-<%# Show flash %>
-<%= turbo_stream.prepend "flash" do %>
-  <%= render "shared/flash", message: "Resource deleted!", type: :info %>
-<% end %>
+-# Show flash
+= turbo_stream.prepend "flash" do
+  = render "shared/flash", message: "Resource deleted!", type: :info
 ```
 
 ### Multiple Streams in One Response
 
-```erb
-<%# app/views/resources/create.turbo_stream.erb %>
+```haml
+-# app/views/resources/create.turbo_stream.haml
 
-<%# Multiple updates in one response %>
-<%= turbo_stream.prepend "resources", @resource %>
-<%= turbo_stream.update "resources_count", Resource.count %>
-<%= turbo_stream.replace "new_resource_form", partial: "form", locals: { resource: Resource.new } %>
-<%= turbo_stream.remove "empty_state" %>
+-# Multiple updates in one response
+= turbo_stream.prepend "resources", @resource
+= turbo_stream.update "resources_count", Resource.count
+= turbo_stream.replace "new_resource_form", partial: "form", locals: { resource: Resource.new }
+= turbo_stream.remove "empty_state"
 ```
 
 ### Inline Turbo Streams (Controller)
@@ -414,14 +392,13 @@ end
 
 ### Turbo Streams with Morph (Turbo 8)
 
-```erb
-<%# Morph preserves focus and scroll position %>
-<%= turbo_stream.morph dom_id(@resource) do %>
-  <%= render @resource %>
-<% end %>
-
-<%# Refresh the entire page with morphing %>
-<%= turbo_stream.refresh %>
+```haml
+-# Morph preserves focus and scroll position
+= turbo_stream.morph dom_id(@resource) do
+  = render @resource
+  
+-# Refresh the entire page with morphing
+= turbo_stream.refresh
 ```
 
 ## Broadcasts (Real-time Streams)
@@ -452,18 +429,17 @@ end
 
 ### View Subscription
 
-```erb
-<%# app/views/chats/show.html.erb %>
-<h1><%= @chat.name %></h1>
+```haml
+-# app/views/chats/show.html.haml
+%h1= @chat.name
 
-<%# Subscribe to real-time updates %>
-<%= turbo_stream_from @chat %>
+-# Subscribe to real-time updates
+= turbo_stream_from @chat
 
-<div id="messages">
-  <%= render @chat.messages %>
-</div>
+#messages
+  = render @chat.messages
 
-<%= render "messages/form", message: Message.new(chat: @chat) %>
+= render "messages/form", message: Message.new(chat: @chat)
 ```
 
 ### Custom Broadcasts
@@ -488,111 +464,103 @@ class Notification < ApplicationRecord
 end
 ```
 
-```erb
-<%# Subscribe in layout %>
-<% if current_user %>
-  <%= turbo_stream_from "user_#{current_user.id}_notifications" %>
-<% end %>
+```haml
+-# Subscribe in layout
+- if current_user
+  = turbo_stream_from "user_#{current_user.id}_notifications"
+    -# Real-time notifications appear here
 
-<div id="notifications">
-  <%# Real-time notifications appear here %>
-</div>
+#notifications
 ```
 
 ## Forms with Turbo
 
+### Simple Form preferred patterns
+
+- Use `simple_form_for` with `html:` for Turbo data attributes
+- Prefer `f.input` over raw field helpers for consistent wrappers
+- Use `input_html:` to attach `data-turbo-frame` or Stimulus hooks
+
 ### Standard Turbo Form
 
-```erb
-<%# Forms submit via Turbo by default %>
-<%= form_with model: @resource, id: "resource_form" do |f| %>
-  <%= f.text_field :name %>
-  <%= f.submit "Save" %>
-<% end %>
+```haml
+-# Forms submit via Turbo by default
+= simple_form_for @resource, html: { id: "resource_form" } do |f|
+  = f.input :name
+  = f.button :submit, "Save"
 ```
 
 ### Form with Frame Target
 
-```erb
-<%# Submit updates a specific frame %>
-<%= form_with model: @resource,
-              data: { turbo_frame: "search_results" } do |f| %>
-  <%= f.search_field :query %>
-  <%= f.submit "Search" %>
-<% end %>
+```haml
+-# Submit updates a specific frame
+= simple_form_for @resource,                               |
+  html: { data: { turbo_frame: "search_results" } } do |f| |
+  = f.input :query, as: :search
+  = f.button :submit, "Search"
 ```
 
 ### Form with Confirmation
 
-```erb
-<%= button_to "Delete",
-              resource_path(@resource),
-              method: :delete,
-              data: { turbo_confirm: "Are you sure?" } %>
+```haml
+= button_to "Delete",                      |
+  resource_path(@resource),                |
+  method: :delete,                         |
+  data: { turbo_confirm: "Are you sure?" } |
 ```
 
 ### Form Submission Methods
 
-```erb
-<%# Turbo handles these automatically %>
-<%= form_with model: @resource, method: :patch do |f| %>
-  <%# ... %>
-<% end %>
+```haml
+-# Turbo handles these automatically
+= simple_form_for @resource, method: :patch do |f|
+  -# ...
 
-<%= button_to "Archive", archive_resource_path(@resource), method: :post %>
-<%= button_to "Delete", resource_path(@resource), method: :delete %>
+= button_to "Archive", archive_resource_path(@resource), method: :post
+= button_to "Delete", resource_path(@resource), method: :delete
 ```
 
 ## Flash Messages with Turbo
 
 ### Flash Container Setup
 
-```erb
-<%# app/views/layouts/application.html.erb %>
-<body>
-  <div id="flash">
-    <%= render "shared/flash_messages" %>
-  </div>
-
-  <%= yield %>
-</body>
+```haml
+-# app/views/layouts/application.html.haml
+%body
+  #flash
+    = render "shared/flash_messages"
+  = yield
 ```
 
-```erb
-<%# app/views/shared/_flash_messages.html.erb %>
-<% flash.each do |type, message| %>
-  <%= render "shared/flash", type: type, message: message %>
-<% end %>
+```haml
+-# app/views/shared/_flash_messages.html.haml
+- flash.each do |type, message|
+  = render "shared/flash", type: type, message: message
 ```
 
-```erb
-<%# app/views/shared/_flash.html.erb %>
-<div class="flash flash-<%= type %>"
-     data-controller="flash"
-     data-flash-delay-value="5000">
-  <%= message %>
-  <button data-action="flash#dismiss">×</button>
-</div>
+```haml
+-# app/views/shared/_flash.html.haml
+%div{ class: "flash flash-#{type}", "data-controller": "flash", "data-flash-delay-value": "5000" }
+  = message
+  %button{ "data-action": "flash#dismiss" } ×
 ```
 
 ### Flash in Turbo Streams
 
-```erb
-<%# Include flash in stream responses %>
-<%= turbo_stream.update "flash" do %>
-  <%= render "shared/flash", type: :success, message: "Saved!" %>
-<% end %>
+```haml
+-# Include flash in stream responses
+= turbo_stream.update "flash" do
+  = render "shared/flash", type: :success, message: "Saved!"
 ```
 
 ## View Transitions (Turbo 8)
 
 ### Enable View Transitions
 
-```erb
-<%# app/views/layouts/application.html.erb %>
-<head>
-  <meta name="view-transition" content="same-origin">
-</head>
+```haml
+-# app/views/layouts/application.html.haml
+%body
+  %meta{ content: "same-origin", name: "view-transition"}
 ```
 
 ### CSS for View Transitions
@@ -632,10 +600,10 @@ end
 
 ### Disable Transitions for Specific Links
 
-```erb
-<%= link_to "Skip Transition",
-            resource_path,
-            data: { turbo_view_transition: false } %>
+```haml
+= link_to "Skip Transition",             |
+  resource_path,                         |
+  data: { turbo_view_transition: false } |
 ```
 
 ## Request Specs for Turbo
@@ -761,14 +729,12 @@ class EditableResourceComponent < ViewComponent::Base
 end
 ```
 
-```erb
-<%# app/components/editable_resource_component.html.erb %>
-<%= turbo_frame_tag frame_id do %>
-  <div class="resource-card">
-    <h3><%= @resource.name %></h3>
-    <%= link_to "Edit", helpers.edit_resource_path(@resource) %>
-  </div>
-<% end %>
+```haml
+-# app/components/editable_resource_component.html.haml
+= turbo_frame_tag frame_id do
+  .resource-card
+    %h3= @resource.name
+    = link_to "Edit", helpers.edit_resource_path(@resource)
 ```
 
 ### Component for Turbo Stream Target
@@ -782,34 +748,29 @@ class ResourceListComponent < ViewComponent::Base
 end
 ```
 
-```erb
-<%# app/components/resource_list_component.html.erb %>
-<div id="resources">
-  <% @resources.each do |resource| %>
-    <%= render EditableResourceComponent.new(resource: resource) %>
-  <% end %>
-</div>
+```haml
+-# app/components/resource_list_component.html.haml
+#resources
+  - @resources.each do |resource|
+    = render EditableResourceComponent.new(resource: resource)
 ```
 
 ## Permanent Elements
 
 ### Preserving State During Navigation
 
-```erb
-<%# Elements with data-turbo-permanent persist across navigations %>
-<audio id="player" data-turbo-permanent>
-  <source src="<%= @track.url %>">
-</audio>
+```haml
+-# Elements with data-turbo-permanent persist across navigations
+%audio#player{ "data-turbo-permanent": "" }
+  %source{ src: "#{@track.url}" }
 
-<%# Video player that maintains playback %>
-<video id="video-player" data-turbo-permanent>
-  <%# ... %>
-</video>
+-# Video player that maintains playback
+%video#video-player{ "data-turbo-permanent": "" }
+  -# ...
 
-<%# Sidebar state %>
-<nav id="sidebar" data-turbo-permanent data-controller="sidebar">
-  <%# Sidebar content %>
-</nav>
+-# Sidebar state
+%nav#sidebar{ "data-controller": "sidebar", "data-turbo-permanent": "" }
+  -# Sidebar conten
 ```
 
 ## Common Patterns
@@ -835,84 +796,75 @@ export default class extends Controller {
 
 ### Empty State Handling
 
-```erb
-<%# app/views/resources/index.html.erb %>
-<div id="resources">
-  <% if @resources.any? %>
-    <%= render @resources %>
-  <% else %>
-    <div id="empty_state">
-      <p>No resources yet. Create your first one!</p>
-    </div>
-  <% end %>
-</div>
+```haml
+-# app/views/resources/index.html.haml
+#resources
+  - if @resources.any?
+    = render @resources
+  - else
+    #empty_state
+      %p No resources yet. Create your first one!
 ```
 
-```erb
-<%# app/views/resources/create.turbo_stream.erb %>
-<%= turbo_stream.remove "empty_state" %>
-<%= turbo_stream.prepend "resources", @resource %>
+```haml
+-# app/views/resources/create.turbo_stream.haml
+= turbo_stream.remove "empty_state"
+= turbo_stream.prepend "resources", @resource
 ```
 
 ### Infinite Scroll
 
-```erb
-<%# app/views/resources/index.html.erb %>
-<div id="resources">
-  <%= render @resources %>
-</div>
+```haml
+-# app/views/resources/index.html.haml
+#resources
+  = render @resources
 
-<%= turbo_frame_tag "pagination",
-                    src: resources_path(page: @next_page),
-                    loading: :lazy do %>
-  <div class="loading">Loading more...</div>
-<% end %>
+= turbo_frame_tag "pagination",          |
+  src: resources_path(page: @next_page), |
+  loading: :lazy do                      |
+  .loading Loading more...
 ```
 
-```erb
-<%# app/views/resources/_pagination.html.erb (returned for frame) %>
-<%= turbo_stream.append "resources" do %>
-  <%= render @resources %>
-<% end %>
+```haml
+-# app/views/resources/_pagination.html.haml (returned for frame)
+= turbo_stream.append "resources" do
+  = render @resources
 
-<%= turbo_frame_tag "pagination",
-                    src: (@next_page ? resources_path(page: @next_page) : nil),
-                    loading: :lazy do %>
-  <% if @next_page %>
-    <div class="loading">Loading more...</div>
-  <% end %>
-<% end %>
+= turbo_frame_tag "pagination",                               |
+  src: (@next_page ? resources_path(page: @next_page) : nil), |
+  loading: :lazy do                                           |
+  - if @next_page
+    .loading Loading more...
 ```
 
 ## What NOT to Do
 
-```erb
-<%# ❌ BAD - No frame ID %>
-<%= turbo_frame_tag do %>
-  <%# Content %>
-<% end %>
+```haml
+-# ❌ BAD - No frame ID
+= turbo_frame_tag do
+  -# Content
 
-<%# ✅ GOOD - Always specify frame ID %>
-<%= turbo_frame_tag "resources" do %>
-  <%# Content %>
-<% end %>
+-# ✅ GOOD - Always specify frame ID
+= turbo_frame_tag "resources" do
+  -# Content
 
-<%# ❌ BAD - Mismatched frame IDs %>
-<%# index.html.erb %>
-<%= turbo_frame_tag "list" do %>
-<% end %>
-<%# edit.html.erb %>
-<%= turbo_frame_tag "edit_form" do %>  <%# Won't match! %>
-<% end %>
+-# ❌ BAD - Mismatched frame IDs
+-# index.html.haml
+= turbo_frame_tag "list" do
 
-<%# ❌ BAD - Stream without graceful degradation %>
+-# edit.html.haml
+= turbo_frame_tag "edit_form" do # Won't match!
+```
+
+```ruby
+# ❌ BAD - Stream without graceful degradation
 def create
   @resource.save
   render turbo_stream: turbo_stream.prepend("resources", @resource)
   # No HTML fallback!
 end
 
-<%# ✅ GOOD - Always provide HTML fallback %>
+# ✅ GOOD - Always provide HTML fallback
 def create
   respond_to do |format|
     format.turbo_stream

@@ -13,7 +13,7 @@ You are an expert Rails developer who builds REST APIs following patterns from m
 - One controller serves both HTML (web) and JSON (API)
 - Use `respond_to` blocks for format-specific responses
 - RESTful routes only (no GraphQL, no custom endpoints unless absolutely necessary)
-- Jbuilder for JSON templates (like ERB for HTML)
+- Jbuilder for JSON templates (like HAML for HTML)
 - HTTP status codes for success/errors
 - Token-based authentication for API (not OAuth unless required)
 - Versioning through Accept headers or URL prefixes when needed
@@ -59,7 +59,7 @@ class BoardsController < ApplicationController
     @boards = Current.account.boards.includes(:creator)
 
     respond_to do |format|
-      format.html # renders index.html.erb
+      format.html # renders index.html.haml
       format.json # renders index.json.jbuilder
     end
   end
@@ -152,7 +152,7 @@ class BoardsController < ApplicationController
       .order(created_at: :desc)
 
     respond_to do |format|
-      format.html # renders index.html.erb
+      format.html # renders index.html.haml
       format.json # renders index.json.jbuilder
     end
   end
@@ -287,7 +287,7 @@ end
 
 ## Pattern 2: Jbuilder Templates
 
-Build JSON views with Jbuilder (like ERB for HTML).
+Build JSON views with Jbuilder (like HAML for HTML).
 
 ```ruby
 # app/views/boards/index.json.jbuilder

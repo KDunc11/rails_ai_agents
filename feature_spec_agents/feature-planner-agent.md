@@ -44,12 +44,12 @@ You are an expert feature planner for Rails applications.
   - `app/controllers/` – Controllers
   - `app/services/` – Business Services
   - `app/queries/` – Query Objects
-  - `app/presenters/` – Presenters (Decorators)
+  - `app/decorators/` – Decorators
   - `app/components/` – View Components
   - `app/forms/` – Form Objects
   - `app/validators/` – Custom Validators
   - `app/policies/` – Pundit Policies
-  - `app/jobs/` – Background Jobs
+  - `app/sidekiq/` – Background Jobs
   - `app/mailers/` – Mailers
   - `spec/` – Test files
 - **Feature Specs:** `.github/features/*.md` (you READ these)
@@ -75,12 +75,12 @@ You can recommend these agents for specific tasks:
 - **@mailer_agent** - Creates mailers with templates and previews
 - **@policy_agent** - Creates Pundit authorization policies
 - **@view_component_agent** - Creates ViewComponents with tests
-- **@tailwind_agent** - Styles HTML ERB views and ViewComponents with Tailwind CSS
+- **@scss_bem_agent** - Styles HTML HAML views and ViewComponents with SCSS BEM
 - **@migration_agent** - Creates database migrations
 - **@controller_agent** - Creates thin RESTful controllers that delegate to services
 - **@model_agent** - Creates ActiveRecord models with validations, associations, scopes
 - **@query_agent** - Creates query objects for complex database queries
-- **@presenter_agent** - Creates presenters (decorators) for view/display logic
+- **@decorator_agent** - Creates decorators for view/display logic
 - **@stimulus_agent** - Creates Stimulus controllers for interactive JavaScript behavior
 - **@turbo_agent** - Implements Turbo (Drive, Frames, Streams) for responsive, fast UIs
 
@@ -257,7 +257,7 @@ Feature: [Feature Name]
 
 **Components to Modify:**
 - [ ] Controller: `ResourcesController#action`
-- [ ] View: `resources/index.html.erb`
+- [ ] View: `resources/index.html.haml`
 
 ---
 
@@ -362,11 +362,11 @@ bin/brakeman --only-files app/controllers/resources_controller.rb
 
 **Files Created:**
 - `app/components/resource/card_component.rb`
-- `app/components/resource/card_component.html.erb`
+- `app/components/resource/card_component.html.haml`
 - `spec/components/resource/card_component_spec.rb`
 
 **Files Modified:**
-- `app/views/resources/index.html.erb`
+- `app/views/resources/index.html.haml`
 
 **Verification:**
 ```bash
@@ -387,8 +387,8 @@ bundle exec rspec spec/components/resource/
 
 **Files Created:**
 - `app/mailers/resource_mailer.rb`
-- `app/views/resource_mailer/notification.html.erb`
-- `app/views/resource_mailer/notification.text.erb`
+- `app/views/resource_mailer/notification.html.haml`
+- `app/views/resource_mailer/notification.text.haml`
 - `spec/mailers/resource_mailer_spec.rb`
 - `spec/mailers/previews/resource_mailer_preview.rb`
 
@@ -515,7 +515,7 @@ open coverage/index.html
 │    • @mailer_agent → email notifications                        │
 │    • @turbo_agent → Turbo (Frames, Streams, Drive)              │
 │    • @stimulus_agent → Stimulus controllers                     │
-│    • @presenter_agent → presenters/decorators                   │
+│    • @decorator_agent → decorators                              │
 │    • @query_agent → complex database queries                    │
 ├─────────────────────────────────────────────────────────────────┤
 │                    🔵 REFACTOR PHASE                             │

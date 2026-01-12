@@ -119,15 +119,13 @@ export default class extends Controller {
 }
 ```
 
-```erb
-<%# Usage in view %>
-<div data-controller="toggle">
-  <button data-action="toggle#toggle">Toggle Details</button>
+```haml
+-# Usage in vie
+%div{ "data-controller": "toggle" }
+  %button{ "data-action": "toggle#toggle" } Toggle Details
 
-  <div data-toggle-target="toggleable" class="hidden">
-    <p>These are the details...</p>
-  </div>
-</div>
+  .hidden{ "data-toggle-target": "toggleable" }
+    %p These are the details...
 ```
 
 ### Clipboard controller (copy to clipboard)
@@ -166,12 +164,11 @@ export default class extends Controller {
 }
 ```
 
-```erb
-<%# Usage %>
-<div data-controller="clipboard" data-clipboard-content-value="<%= @card.public_url %>">
-  <input data-clipboard-target="source" value="<%= @card.public_url %>" readonly>
-  <button data-action="clipboard#copy" data-clipboard-target="button">Copy</button>
-</div>
+```haml
+-# Usage
+%div{ "data-clipboard-content-value": "#{@card.public_url}", "data-controller": "clipboard" }
+  %input {"data-clipboard-target": "source", readonly: "readonly", value: "#{@card.public_url}" }/
+  %button{ "data-action": "clipboard#copy", "data-clipboard-target": "button" } Copy
 ```
 
 ### Auto-dismiss controller (flash messages)
@@ -201,14 +198,11 @@ export default class extends Controller {
 }
 ```
 
-```erb
-<%# Usage %>
-<div class="flash flash--notice"
-     data-controller="auto-dismiss"
-     data-auto-dismiss-delay-value="3000">
-  <%= message %>
-  <button data-action="auto-dismiss#dismiss">×</button>
-</div>
+```haml
+-# Usage
+.flash.flash--notice{ "data-auto-dismiss-delay-value": "3000", "data-controller": "auto-dismiss" }
+  = message
+  %button{ "data-action": "auto-dismiss#dismiss" } ×
 ```
 
 ### Modal controller (dialogs)
@@ -248,20 +242,16 @@ export default class extends Controller {
 }
 ```
 
-```erb
-<%# Usage %>
-<div data-controller="modal">
-  <button data-action="modal#open">Open Modal</button>
+```haml
+-# Usage
+%div{ "data-controller": "modal" }
+  %button{ "data-action": "modal#open" } Open Modal
 
-  <dialog data-modal-target="dialog"
-          data-action="click->modal#clickOutside keydown->modal#closeWithKeyboard">
-    <div class="modal__content">
-      <h2>Modal Title</h2>
-      <p>Modal content...</p>
-      <button data-action="modal#close">Close</button>
-    </div>
-  </dialog>
-</div>
+  %dialog{ "data-action": "click->modal#clickOutside keydown->modal#closeWithKeyboard", "data-modal-target": "dialog" }
+    .modal__content
+      %h2 Modal Title
+      %p Modal content...
+      %button{"data-action": "modal#close"} Close
 ```
 
 ### Dropdown controller
@@ -304,16 +294,14 @@ export default class extends Controller {
 }
 ```
 
-```erb
-<%# Usage %>
-<div data-controller="dropdown">
-  <button data-action="dropdown#toggle">Menu ▾</button>
+```haml
+-# Usage
+%div{ "data-controller": "dropdown" }
+  %button{"data-action": "dropdown#toggle"} Menu ▾
 
-  <div data-dropdown-target="menu" class="dropdown-menu">
-    <%= link_to "Edit", edit_card_path(@card) %>
-    <%= link_to "Delete", card_path(@card), method: :delete %>
-  </div>
-</div>
+  .dropdown-menu{ "data-dropdown-target": "menu" }
+    = link_to "Edit", edit_card_path(@card)
+    = link_to "Delete", card_path(@card), method: :delete
 ```
 
 ## Pattern 2: Form enhancement controllers
@@ -343,16 +331,17 @@ export default class extends Controller {
 }
 ```
 
-```erb
-<%# Auto-submit on change %>
-<%= form_with model: @filter,
-    data: {
-      controller: "auto-submit",
-      action: "change->auto-submit#submit"
-    } do |f| %>
-  <%= f.select :status, Card.statuses.keys %>
-  <%= f.select :assignee_id, User.all.map { |u| [u.name, u.id] } %>
-<% end %>
+```haml
+-# Auto-submit on change
+= simple_form_for @filter,                             |
+  html: {                                              |
+    data: {                                            |
+      controller: "auto-submit",                       |
+      action: "change->auto-submit#submit"             |
+    }                                                  |
+  } do |f|                                             |
+  = f.input :status, collection: Card.statuses.keys
+  = f.input :assignee_id, collection: User.all.map { |u| [u.name, u.id] }
 ```
 
 ### Character counter controller
@@ -386,16 +375,15 @@ export default class extends Controller {
 }
 ```
 
-```erb
-<%# Usage %>
-<div data-controller="character-counter" data-character-counter-max-value="280">
-  <%= f.text_area :body,
-      data: {
-        character_counter_target: "input",
-        action: "input->character-counter#update"
-      } %>
-  <div data-character-counter-target="count"></div>
-</div>
+```haml
+-# Usage
+%div{ "data-character-counter-max-value": "280", "data-controller": "character-counter" }
+  = f.text_area :body,                          |
+    data: {                                     |
+      character_counter_target: "input",        |
+      action: "input->character-counter#update" |
+    }                                           |
+  %div{ "data-character-counter-target": "count" }
 ```
 
 ### Form validation UI controller
@@ -450,23 +438,27 @@ export default class extends Controller {
 }
 ```
 
-```erb
-<%# Usage %>
-<%= form_with model: @card, data: { controller: "form-validation" } do |f| %>
-  <%= f.text_field :title,
-      required: true,
-      data: {
-        form_validation_target: "input",
-        action: "blur->form-validation#validate"
-      } %>
+```haml
+-# Usage
+= simple_form_for @card,                              |
+  html: { data: { controller: "form-validation" } } do |f|
+  = f.input :title,                                             |
+    required: true,                                             |
+    input_html: {                                               |
+      data: {                                                   |
+        form_validation_target: "input",                        |
+        action: "blur->form-validation#validate"                |
+      }                                                         |
+    }                                                           |
 
-  <%= f.email_field :email,
-      required: true,
-      data: {
-        form_validation_target: "input",
-        action: "blur->form-validation#validate"
-      } %>
-<% end %>
+  = f.input :email,                                             |
+    required: true,                                             |
+    input_html: {                                               |
+      data: {                                                   |
+        form_validation_target: "input",                        |
+        action: "blur->form-validation#validate"                |
+      }                                                         |
+    }                                                           |
 ```
 
 ## Pattern 3: Integration controllers
@@ -515,16 +507,12 @@ export default class extends Controller {
 }
 ```
 
-```erb
-<%# Usage %>
-<div data-controller="sortable"
-     data-sortable-url-value="<%= reorder_cards_path %>">
-  <% @cards.each do |card| %>
-    <div data-id="<%= card.id %>">
-      <%= render card %>
-    </div>
-  <% end %>
-</div>
+```haml
+-# Usage
+%div{ "data-controller": "sortable", "data-sortable-url-value": reorder_cards_path }
+  - @cards.each do |card|
+    %div{ "data-id": "#{card.id}" }
+      = render card
 ```
 
 ### Trix editor enhancements
@@ -597,12 +585,10 @@ export default class extends Controller {
 }
 ```
 
-```erb
-<%# Track card views after 3 seconds %>
-<div data-controller="beacon"
-     data-beacon-url-value="<%= card_reading_path(@card) %>">
-  <%= render @card %>
-</div>
+```haml
+-# Track card views after 3 seconds
+%div{ "data-beacon-url-value": "#{card_reading_path(@card)}", "data-controller": "beacon" }
+  = render @card
 ```
 
 ### Visibility tracker controller
@@ -686,13 +672,11 @@ export default class extends Controller {
 }
 ```
 
-```erb
-<%# Animate new items %>
-<%= turbo_stream.prepend "comments" do %>
-  <div data-controller="slide-down">
-    <%= render @comment %>
-  </div>
-<% end %>
+```haml
+-# Animate new items
+= turbo_stream.prepend "comments" do
+  %div{ "data-controller": "slide-down" }
+    = render @comment
 ```
 
 ### Fade-in controller
@@ -802,43 +786,37 @@ export default class extends Controller {
 }
 ```
 
-```erb
-<%# Client-side filtering %>
-<div data-controller="filter">
-  <input type="search"
-         placeholder="Filter cards..."
-         data-action="input->filter#filter">
+```haml
+-# Client side filtering
+%div{ "data-controller": "filter" }
+  %input{
+    placeholder: "Filter cards...",
+    type: "search",
+    "data-action": "input->filter#filter"
+  }
 
-  <div>
-    <% @cards.each do |card| %>
-      <div data-filter-target="item">
-        <%= card.title %>
-      </div>
-    <% end %>
-  </div>
-</div>
+  %div
+    - @cards.each do |card|
+      %div{ "data-filter-target": "item" }
+        = card.title
 ```
 
 ## Controller composition patterns
 
 ### Multiple controllers on one element
 
-```erb
-<div data-controller="dropdown modal">
-  <%# Both controllers active %>
-</div>
+```haml
+%div{ "data-controller": "dropdown modal" }
+  -# Both controllers active
 ```
 
 ### Nested controllers
 
-```erb
-<div data-controller="sortable">
-  <div data-controller="card">
-    <div data-controller="dropdown">
-      <%# Three controllers in hierarchy %>
-    </div>
-  </div>
-</div>
+```haml
+%div{ "data-controller": "sortable" }
+  %div{ "data-controller": "card" }
+  %div{ "data-controller": "dropdown" }
+    -# three controllers in hierarchy
 ```
 
 ### Controller communication via events
@@ -863,13 +841,10 @@ export default class extends Controller {
 }
 ```
 
-```erb
-<div data-controller="subscriber">
-  <div data-controller="publisher"
-       data-action="publisher:published->subscriber#handleEvent">
-    <button data-action="publisher#publish">Publish</button>
-  </div>
-</div>
+```haml
+%div{ "data-controller": "subscriber" }
+  %div{ "data-action": "publisher:published->subscriber#handleEvent", "data-controller": "publisher" }
+  %button{ "data-action": "publisher#publish" } Publish
 ```
 
 ## Testing Stimulus controllers

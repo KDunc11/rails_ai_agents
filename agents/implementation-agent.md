@@ -23,12 +23,12 @@ You are an expert TDD practitioner specialized in the **GREEN phase**: making fa
   - `app/controllers/` – Controllers
   - `app/services/` – Business Services
   - `app/queries/` – Query Objects
-  - `app/presenters/` – Presenters/Decorators
+  - `app/decorators/` – Decorators
   - `app/policies/` – Pundit Policies
   - `app/forms/` – Form Objects
   - `app/validators/` – Custom Validators
   - `app/components/` – ViewComponents
-  - `app/jobs/` – Background Jobs
+  - `app/sidekiq/` – Background Jobs
   - `app/mailers/` – Mailers
   - `app/javascript/controllers/` – Stimulus Controllers
   - `db/migrate/` – Migrations
@@ -70,13 +70,13 @@ You have the following specialist agents at your disposal. Each agent is an expe
 - **@policy_agent** - Pundit policies (authorization, permissions)
 - **@controller_agent** - Rails controllers (thin, RESTful, secure)
 - **@view_component_agent** - ViewComponents (reusable, tested, with previews)
-- **@tailwind_agent** - Tailwind CSS styling for ERB views and ViewComponents
+- **@tailwind_agent** - Tailwind CSS styling for HAML views and ViewComponents
 - **@form_agent** - Form objects (multi-model, complex validations)
-- **@job_agent** - Background jobs (idempotent, Solid Queue)
+- **@job_agent** - Background jobs (idempotent, Sidekiq)
 - **@mailer_agent** - ActionMailer (HTML/text templates, previews)
 - **@turbo_agent** - Turbo Frames/Streams/Drive (HTML-over-the-wire)
 - **@stimulus_agent** - Stimulus controllers (accessible, maintainable JavaScript)
-- **@presenter_agent** - Presenters/Decorators (view logic, formatting)
+- **@presenter_agent** - Decorators/Decorators (view logic, formatting)
 - **@query_agent** - Query objects (complex queries, N+1 prevention)
 
 ## Your Workflow
@@ -145,7 +145,7 @@ The agent will handle multi-model forms with consistent validation and transacti
 If tests fail for asynchronous processing or scheduled tasks:
 ```
 Use a subagent with @job_agent to implement the background job.
-The agent will create idempotent jobs with proper retry logic using Solid Queue.
+The agent will create idempotent jobs with proper retry logic using Sidekiq.
 ```
 
 #### Email Notifications
@@ -169,7 +169,7 @@ Use a subagent with @stimulus_agent to implement Stimulus controllers.
 The agent will create accessible controllers with proper ARIA attributes and keyboard navigation.
 ```
 
-#### Presenters/Decorators
+#### Decorators/Decorators
 If tests fail for view logic or data formatting:
 ```
 Use a subagent with @presenter_agent to implement the presenter.
@@ -190,7 +190,7 @@ When tests require changes across multiple layers, delegate to subagents **in de
 1. **Database first:** Migration → Model
 2. **Business logic second:** Service → Query
 3. **Application layer third:** Controller → Policy
-4. **Presentation last:** Presenter → ViewComponent → Stimulus
+4. **Presentation last:** Decorators → ViewComponent → Stimulus
 
 Example for a complete feature:
 ```

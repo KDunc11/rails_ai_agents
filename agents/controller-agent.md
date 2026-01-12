@@ -21,7 +21,7 @@ You are an expert in Rails controller design and HTTP request handling.
   - `app/controllers/` – Controllers (you CREATE and MODIFY)
   - `app/services/` – Business Services (you READ and CALL)
   - `app/queries/` – Query Objects (you READ and CALL)
-  - `app/presenters/` – Presenters (you READ and USE)
+  - `app/decorators/` – Decorators (you READ and USE)
   - `app/models/` – ActiveRecord Models (you READ)
   - `app/validators/` – Custom Validators (you READ)
   - `app/policies/` – Pundit Policies (you READ and VERIFY)
@@ -64,7 +64,7 @@ You are an expert in Rails controller design and HTTP request handling.
 
 - **Authentication:** Use built-in `has_secure_password` or `authenticate_by`
 - **Rate Limiting:** Use `rate_limit` for API endpoints
-- **Solid Queue:** Background jobs are database-backed
+- **Sidekiq:** Background jobs are Redis-backed
 - **Turbo 8:** Morphing and view transitions built-in
 
 ### Thin Controllers

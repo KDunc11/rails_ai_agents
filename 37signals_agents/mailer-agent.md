@@ -73,28 +73,28 @@ end
 
 # Send once per day with bundled activities
 DigestMailer.daily_activity(user, user.activities_since_last_email).deliver_later
+```
 
-# ✅ GOOD: Plain text with simple HTML
-<%# app/views/digest_mailer/daily_activity.text.erb %>
-Hi <%= @user.name %>,
+```haml
+-# ✅ GOOD: Plain text with simple HTML
+-# app/views/digest_mailer/daily_activity.text.haml
+Hi #{@user.name},
 
 Here's what happened today:
 
-<% @activities.each do |activity| %>
-- <%= activity.description %>
-<% end %>
+- @activities.each do |activity|
+  = "- #{activity.description}"
 
-View all activity: <%= activities_url %>
+View all activity: #{activities_url}
 
 # ✅ GOOD: Minimal inline CSS
-<table style="width: 100%; max-width: 600px; margin: 0 auto;">
-  <tr>
-    <td style="padding: 20px;">
-      <%= yield %>
-    </td>
-  </tr>
-</table>
+%table{ style: "width: 100%; max-width: 600px; margin: 0 auto;" }
+  %tr
+    %td{ style: "padding: 20px;" }
+      = yield
+```
 
+```ruby
 # ✅ GOOD: Simple mailer with defaults
 class ApplicationMailer < ActionMailer::Base
   default from: "notifications@example.com"
@@ -278,109 +278,118 @@ end
 
 Create both plain text and HTML versions of emails.
 
-```erb
-<%# app/views/comment_mailer/mentioned.text.erb %>
-Hi <%= @mention.user.name %>,
+```haml
+-# app/views/comment_mailer/mentioned.text.haml
+Hi #{@mention.user.name},
 
-<%= @mention.creator.name %> mentioned you in a comment on <%= @card.title %>:
+#{@mention.creator.name} mentioned you in a comment on #{@card.title}:
 
-"<%= @comment.body %>"
+= @comment.body
 
-View the card: <%= account_board_card_url(@account, @card.board, @card) %>
+View the card: #{account_board_card_url(@account, @card.board, @card)}
 
----
+\---
 You're receiving this because you were mentioned.
 
-<%# app/views/comment_mailer/mentioned.html.erb %>
-<p>Hi <%= @mention.user.name %>,</p>
+-# app/views/comment_mailer/mentioned.html.haml
+%p
+  Hi #{@mention.user.name},
 
-<p><%= @mention.creator.name %> mentioned you in a comment on <strong><%= @card.title %></strong>:</p>
+%p
+  = @mention.creator.name
+  mentioned you in a comment on
+  = succeed ":" do
+    %strong= @card.title
 
-<blockquote style="border-left: 3px solid #ccc; padding-left: 15px; color: #666;">
-  <%= simple_format(@comment.body) %>
-</blockquote>
+%blockquote{ style: "border-left: 3px solid #ccc; padding-left: 15px; color: #666;" }
+  = simple_format(@comment.body)
 
-<p>
-  <%= link_to "View the card", account_board_card_url(@account, @card.board, @card),
-      style: "color: #0066cc; text-decoration: none;" %>
-</p>
+%p
+  = link_to "View the card", account_board_card_url(@account, @card.board, @card), |
+    style: "color: #0066cc; text-decoration: none;"                                |
 
-<p style="color: #999; font-size: 12px; margin-top: 30px;">
+%p{ style: "color: #999; font-size: 12px; margin-top: 30px;" }
   You're receiving this because you were mentioned.
-</p>
 
-<%# app/views/membership_mailer/invitation.text.erb %>
-Hi <%= @membership.user.name %>,
+-# app/views/membership_mailer/invitation.text.haml
+Hi #{@membership.user.name},
 
-<%= @inviter.name %> has invited you to join <%= @account.name %>.
+#{@inviter.name} has invited you to join #{@account.name}.
 
-Accept invitation: <%= account_url(@account) %>
+Accept invitation: #{account_url(@account)}
 
 If you don't want to join, you can ignore this email.
 
-<%# app/views/membership_mailer/invitation.html.erb %>
-<p>Hi <%= @membership.user.name %>,</p>
+-# app/views/membership_mailer/invitation.html.haml
+%p
+  Hi #{@membership.user.name},
 
-<p><%= @inviter.name %> has invited you to join <strong><%= @account.name %></strong>.</p>
+%p
+  = @inviter.name
+  has invited you to join
+  = succeed "." do
+    %strong= @account.name
 
-<p>
-  <%= link_to "Accept invitation", account_url(@account),
-      style: "display: inline-block; padding: 10px 20px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px;" %>
-</p>
+%p
+  = link_to "Accept invitation", account_url(@account),                                                                               |
+    style: "display: inline-block; padding: 10px 20px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px;" |
 
-<p style="color: #999; font-size: 12px; margin-top: 30px;">
+%p{ style: "color: #999; font-size: 12px; margin-top: 30px;" }
   If you don't want to join, you can ignore this email.
-</p>
 
-<%# app/views/magic_link_mailer/sign_in.text.erb %>
-Hi <%= @user.name %>,
+-# app/views/magic_link_mailer/sign_in.text.haml
+Hi #{@user.name},
 
 Click the link below to sign in to your account:
 
-<%= magic_link_url(@magic_link.token) %>
+= magic_link_url(@magic_link.token)
 
 This link will expire in 15 minutes.
 
 If you didn't request this, you can safely ignore this email.
 
-<%# app/views/magic_link_mailer/sign_in.html.erb %>
-<p>Hi <%= @user.name %>,</p>
+-# app/views/magic_link_mailer/sign_in.html.haml
+%p
+  Hi #{@user.name},
 
-<p>Click the button below to sign in to your account:</p>
+%p Click the button below to sign in to your account:
 
-<p>
-  <%= link_to "Sign in", magic_link_url(@magic_link.token),
-      style: "display: inline-block; padding: 12px 24px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;" %>
-</p>
+%p
+  = link_to "Sign in", magic_link_url(@magic_link.token),                                                                                                |
+    style: "display: inline-block; padding: 12px 24px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;" |
 
-<p style="color: #999; font-size: 12px;">
+%p{ style: "color: #999; font-size: 12px;" }
   This link will expire in 15 minutes.
-</p>
 
-<p style="color: #999; font-size: 12px; margin-top: 30px;">
+%p{ style: "color: #999; font-size: 12px; margin-top: 30px;" }
   If you didn't request this, you can safely ignore this email.
-</p>
 ```
 
 ## Pattern 3: Minimal Email Layouts
 
 Create simple, responsive email layouts with inline CSS.
 
-```erb
-<%# app/views/layouts/mailer.text.erb %>
-<%= yield %>
+```haml
+-# app/views/layouts/mailer.text.haml
+= yield
 
----
-<%= @account&.name || "Example App" %>
-<%= root_url %>
+\---
 
-<%# app/views/layouts/mailer.html.erb %>
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
+= @account&.name || "Example App"
+= root_url
+
+-# app/views/layouts/mailer.html.haml
+!!!
+%html
+  %body
+    = yield
+    \---
+    = @account&.name || "Example App"
+    = root_url
+    %meta{ content: "text/html; charset=utf-8", "http-equiv": "Content-Type" }/
+    %meta{ content: "width=device-width, initial-scale=1.0", name: "viewport" }/
+
+    :css
       /* Reset styles */
       body {
         margin: 0;
@@ -420,24 +429,16 @@ Create simple, responsive email layouts with inline CSS.
         color: #999;
         font-size: 12px;
       }
-    </style>
-  </head>
-  <body>
-    <table class="email-container" role="presentation">
-      <tr>
-        <td class="email-content">
-          <%= yield %>
-        </td>
-      </tr>
-      <tr>
-        <td class="email-footer">
-          <%= @account&.name || "Example App" %><br>
-          <%= link_to root_url, root_url %>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>
+
+    %table.email-container{ role: "presentation"}
+      %tr
+        %td.email-content
+          = yield
+      %tr
+        %td.email-footer
+          = @account&.name || "Example App"
+          %br/
+          = link_to root_url, root_url
 ```
 
 ## Pattern 4: Bundled Notifications (Digest Emails)
@@ -552,83 +553,75 @@ mailers:
 ```
 
 **Digest email templates:**
-```erb
-<%# app/views/digest_mailer/daily_activity.text.erb %>
-Hi <%= @user.name %>,
+```haml
+-# app/views/digest_mailer/daily_activity.text.haml
+Hi #{@user.name},
 
-Here's what happened today in <%= @account.name %>:
+Here's what happened today in #{@account.name}:
+- @grouped_activities.each do |type, activities|
+  = type.pluralize
+  (#{activities.size}):
+  - activities.first(5).each do |activity|
+    \- #{activity.description}
+  - if activities.size > 5
+    \... and #{activities.size - 5} more
 
-<% @grouped_activities.each do |type, activities| %>
-<%= type.pluralize %> (<%= activities.size %>):
-<% activities.first(5).each do |activity| %>
-  - <%= activity.description %>
-<% end %>
-<% if activities.size > 5 %>
-  ... and <%= activities.size - 5 %> more
-<% end %>
+View all activity: #{account_activities_url(@account)}
 
-<% end %>
-
-View all activity: <%= account_activities_url(@account) %>
-
----
+\---
 You're receiving this because you opted in to daily digests.
-Manage preferences: <%= account_settings_url(@account) %>
+Manage preferences: #{account_settings_url(@account)}
 
-<%# app/views/digest_mailer/daily_activity.html.erb %>
-<p>Hi <%= @user.name %>,</p>
+-# app/views/digest_mailer/daily_activity.html.haml
+%p
+  Hi #{@user.name},
 
-<p>Here's what happened today in <strong><%= @account.name %></strong>:</p>
+%p
+  Here's what happened today in
+  = succeed ":" do
+    %strong= @account.name
 
-<% @grouped_activities.each do |type, activities| %>
-  <h3 style="font-size: 16px; margin-top: 20px; margin-bottom: 10px;">
-    <%= type.pluralize %> (<%= activities.size %>)
-  </h3>
+- @grouped_activities.each do |type, activities|
+  %h3{ style: "font-size: 16px; margin-top: 20px; margin-bottom: 10px;" }
+    = type.pluralize
+    (#{activities.size})
 
-  <ul style="margin: 0; padding-left: 20px;">
-    <% activities.first(5).each do |activity| %>
-      <li style="margin-bottom: 5px;"><%= activity.description %></li>
-    <% end %>
+  %ul{style: "margin: 0; padding-left: 20px;" }
+    - activities.first(5).each do |activity|
+      %li{ style: "margin-bottom: 5px;" }= activity.description
 
-    <% if activities.size > 5 %>
-      <li style="color: #999;">... and <%= activities.size - 5 %> more</li>
-    <% end %>
-  </ul>
-<% end %>
+    - if activities.size > 5
+      %li{ style: "color: #999;"}
+        \... and #{activities.size - 5} more
 
-<p style="margin-top: 30px;">
-  <%= link_to "View all activity", account_activities_url(@account),
-      style: "color: #0066cc; text-decoration: none;" %>
-</p>
+%p{ style: "margin-top: 30px;" }
+  = link_to "View all activity", account_activities_url(@account), |
+    style: "color: #0066cc; text-decoration: none;"                |
 
-<p style="color: #999; font-size: 12px; margin-top: 30px;">
-  You're receiving this because you opted in to daily digests.<br>
-  <%= link_to "Manage preferences", account_settings_url(@account),
-      style: "color: #999;" %>
-</p>
+%p{ style: "color: #999; font-size: 12px; margin-top: 30px;" }
+  You're receiving this because you opted in to daily digests.
+  %br/
+  = link_to "Manage preferences", account_settings_url(@account), |
+    style: "color: #999;"                                         |
 
-<%# app/views/digest_mailer/pending_notifications.html.erb %>
-<p>Hi <%= @user.name %>,</p>
+-# app/views/digest_mailer/pending_notifications.html.haml
+%p
+  Hi #{@user.name},
 
-<p>You have <%= @notifications.size %> pending notifications:</p>
+%p
+  You have #{@notifications.size} pending notifications:
 
-<% @accounts.each do |account| %>
-  <h3 style="font-size: 16px; margin-top: 20px; margin-bottom: 10px;">
-    <%= account.name %>
-  </h3>
+- @accounts.each do |account|
+  %h3{ style: "font-size: 16px; margin-top: 20px; margin-bottom: 10px;" }
+    = account.name
 
-  <% account_notifications = @notifications.select { |n| n.account == account } %>
-  <ul style="margin: 0; padding-left: 20px;">
-    <% account_notifications.each do |notification| %>
-      <li style="margin-bottom: 5px;">
-        <%= notification.message %>
-        <% if notification.url.present? %>
-          - <%= link_to "View", notification.url, style: "color: #0066cc;" %>
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
-<% end %>
+  - account_notifications = @notifications.select { |n| n.account == account }
+  %ul{ style: "margin: 0; padding-left: 20px;" }
+    - account_notifications.each do |notification|
+      %li{ style: "margin-bottom: 5px;" }
+        = notification.message
+        - if notification.url.present?
+          \- #{link_to "View", notification.url, style: "color: #0066cc;"}
 ```
 
 ## Pattern 5: Email Preferences and Unsubscribe
@@ -731,31 +724,29 @@ end
 ```
 
 **Unsubscribe links in emails:**
-```erb
-<%# app/views/layouts/mailer.html.erb %>
-<!-- Footer with unsubscribe -->
-<tr>
-  <td class="email-footer">
-    <%= @account&.name || "Example App" %><br>
-    <%= link_to root_url, root_url %>
+```haml
+-# app/views/layouts/mailer.html.haml
+/ Footer with unsubscribe
+%tr
+  %td.email-footer
+    = @account&.name || "Example App"
+    %br/
+    = link_to root_url, root_url
+    - if @account && @user
+      %br/
+      %br/
+      = link_to "Unsubscribe",                                                    |
+        unsubscribe_url(token: @user.unsubscribe_token, account_id: @account.id), |
+        style: "color: #999;"                                                     |
 
-    <% if @account && @user %>
-      <br><br>
-      <%= link_to "Unsubscribe",
-          unsubscribe_url(token: @user.unsubscribe_token, account_id: @account.id),
-          style: "color: #999;" %>
-    <% end %>
-  </td>
-</tr>
+-# app/views/email_preferences/unsubscribed.html.haml
+%h1 You've been unsubscribed
 
-<%# app/views/email_preferences/unsubscribed.html.erb %>
-<h1>You've been unsubscribed</h1>
+%p
+  You will no longer receive emails from #{@account.name}.
 
-<p>You will no longer receive emails from <%= @account.name %>.</p>
-
-<p>
-  <%= link_to "Manage email preferences", account_email_preferences_path(@account) %>
-</p>
+%p
+  = link_to "Manage email preferences", account_email_preferences_path(@account)
 ```
 
 ## Pattern 6: Email Previews
@@ -1098,16 +1089,18 @@ class ApplicationMailer < ActionMailer::Base
     )
   end
 end
+```
 
-# app/views/layouts/mailer.html.erb
-<tr>
-  <td style="text-align: center; padding: 20px;">
-    <%= image_tag attachments["logo.png"].url,
-        alt: "Logo",
-        style: "width: 120px; height: auto;" %>
-  </td>
-</tr>
+```haml
+-# app/views/layouts/mailer.html.haml
+%tr
+  %td{ style: "text-align: center; padding: 20px;" }
+    = image_tag attachments["logo.png"].url,
+      alt: "Logo",
+      style: "width: 120px; height: auto;"
+```
 
+```ruby
 # app/mailers/report_mailer.rb
 class ReportMailer < ApplicationMailer
   def monthly_report(user, account, report_pdf)
@@ -1258,13 +1251,13 @@ UserMailer.welcome(@user).deliver_later
 ### Multipart Email (Text + HTML)
 ```ruby
 # Both text and HTML templates automatically used
-# app/views/user_mailer/welcome.text.erb
-# app/views/user_mailer/welcome.html.erb
+# app/views/user_mailer/welcome.text.haml
+# app/views/user_mailer/welcome.html.haml
 ```
 
 ### Inline CSS
-```ruby
-<p style="color: #333; font-size: 16px;">Hello</p>
+```haml
+%p{ style: "color: #333; font-size: 16px;" } Hello
 ```
 
 ### Attachments

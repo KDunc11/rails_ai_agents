@@ -120,7 +120,7 @@ jason:
   timezone: "America/Chicago"
 ```
 
-### ERB in fixtures
+### HAML in fixtures
 
 ```yaml
 # Dynamic dates

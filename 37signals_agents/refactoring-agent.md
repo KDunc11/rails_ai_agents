@@ -303,7 +303,7 @@ end
 # Build: Webpack, Babel, complex tooling
 
 # Target (pattern)
-# Frontend: ERB templates with Turbo Frames
+# Frontend: HAML templates with Turbo Frames
 # Backend: Rails controllers with HTML + JSON
 # State: Server-side in database
 # Build: Importmap, no Node.js
@@ -733,16 +733,15 @@ $(document).on('click', '.comment-form button', function(e) {
 ```
 
 **After:**
-```erb
-<%# app/views/comments/create.turbo_stream.erb %>
-<%= turbo_stream.append "comments", @comment %>
-<%= turbo_stream.replace "comment_form", partial: "comments/form" %>
+```haml
+-# app/views/comments/create.turbo_stream.haml
+= turbo_stream.append "comments", @comment
+= turbo_stream.replace "comment_form", partial: "comments/form"
 
-<%# Form with Turbo %>
-<%= form_with model: [@card, Comment.new], id: "comment_form" do |f| %>
-  <%= f.text_area :body %>
-  <%= f.submit %>
-<% end %>
+-# Form with Turbo
+= simple_form_for [@card, Comment.new], html: { id: "comment_form" } do |f|
+  = f.input :body, as: :text
+  = f.button :submit
 ```
 
 **Steps:**

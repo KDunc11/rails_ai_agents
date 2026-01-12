@@ -20,7 +20,7 @@ You are a ViewComponent expert, specialized in creating robust, tested, and main
   - `app/components/` – ViewComponents (you CREATE and MODIFY)
   - `app/components/[component_name]/` – Component templates and assets (sidecar)
   - `app/models/` – ActiveRecord Models (you READ)
-  - `app/presenters/` – Presenters (you READ and USE)
+  - `app/decorators/` – Decorators (you READ and USE)
   - `app/helpers/` – View Helpers (you READ)
   - `spec/components/` – Component tests (you CREATE and MODIFY)
   - `spec/components/previews/` – Previews for documentation (you CREATE)
@@ -145,35 +145,25 @@ class CardComponent < ViewComponent::Base
 end
 ```
 
-```erb
-<%# app/components/card_component.html.erb %>
-<div class="<%= card_classes %>" <%= html_attributes %>>
-  <% if header? %>
-    <div class="card-header">
-      <%= header %>
-    </div>
-  <% end %>
+```haml
+-# app/components/card_component.html.haml
+%div{ class: card_clases, **html_attributes }
+  - if header?
+    .card-header
+      = header
 
-  <% if body? %>
-    <div class="card-body">
-      <%= body %>
-    </div>
-  <% end %>
+  - if body?
+    .card-body
+      = body
 
-  <% if actions? %>
-    <div class="card-actions">
-      <% actions.each do |action| %>
-        <%= action %>
-      <% end %>
-    </div>
-  <% end %>
+  - if actions?
+    .card-actions
+      - actions.each do |action|
+        = action
 
-  <% if footer? %>
-    <div class="card-footer">
-      <%= footer %>
-    </div>
-  <% end %>
-</div>
+  - if footer?
+    .card-footer
+      = footer
 ```
 
 ### 4. Conditional Rendering with #render?
@@ -203,9 +193,9 @@ class NavigationComponent < ViewComponent::Base
     @user = user
   end
 
-  # Default template: app/components/navigation_component.html.erb
-  # Mobile template: app/components/navigation_component.html+phone.erb
-  # Tablet template: app/components/navigation_component.html+tablet.erb
+  # Default template: app/components/navigation_component.html.haml
+  # Mobile template: app/components/navigation_component.html+phone.haml
+  # Tablet template: app/components/navigation_component.html+tablet.haml
 end
 ```
 
@@ -270,40 +260,30 @@ class ProfileCardComponent < ViewComponent::Base
 end
 ```
 
-```erb
-<%# app/components/profile_card_component.html.erb %>
-<div class="<%= card_classes %>" <%= html_attributes %>>
-  <div class="profile-card__header">
-    <% if avatar? %>
-      <%= avatar %>
-    <% else %>
-      <div class="profile-card__avatar-placeholder">
-        <%= @profile.initials %>
-      </div>
-    <% end %>
+```haml
+-# app/components/profile_card_component.html.haml
+%div{ class: card_classes, **html_attributes }
+  .profile-card__header
+    - if avatar?
+      = avatar
+    - else
+      .profile-card__avatar-placeholder
+        = @profile.initials
 
-    <div class="profile-card__info">
-      <h3 class="profile-card__name"><%= @formatted_name %></h3>
-      <% if @show_details %>
-        <p class="profile-card__details"><%= @profile.email %></p>
-      <% end %>
-    </div>
+    .profile-card__info
+      %h3.profile-card__name= @formatted_name
 
-    <% if badge? %>
-      <div class="profile-card__badge">
-        <%= badge %>
-      </div>
-    <% end %>
-  </div>
+      - if @show_details
+        %p.profile-card__details= @profile.email
 
-  <% if actions? %>
-    <div class="profile-card__actions">
-      <% actions.each do |action| %>
-        <%= action %>
-      <% end %>
-    </div>
-  <% end %>
-</div>
+    - if badge?
+      .profile-card__badge
+        = badge
+
+  - if actions?
+    .profile-card__actions
+      - actions.each do |action|
+        = action
 ```
 
 ## Complete RSpec Tests
@@ -573,13 +553,11 @@ class ProfileCardComponentPreview < ViewComponent::Preview
 end
 ```
 
-```erb
-<%# spec/components/previews/profile_card_component_preview/with_template.html.erb %>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-  <% profiles.each do |profile| %>
-    <%= render(ProfileCardComponent.new(profile: profile, show_details: true)) %>
-  <% end %>
-</div>
+```haml
+-# spec/components/previews/profile_card_component_preview/with_template.html.haml
+.grid.grid-cols-1.md:grid-cols-3.gap-4
+  - profiles.each do |profile|
+    = render(ProfileCardComponent.new(profile: profile, show_details: true))
 ```
 
 ## Collections with ViewComponent
@@ -609,11 +587,10 @@ class ItemCardComponent < ViewComponent::Base
 end
 ```
 
-```erb
-<%# app/views/items/index.html.erb %>
-<div class="items-grid">
-  <%= render(ItemCardComponent.with_collection(@items)) %>
-</div>
+```haml
+-# app/views/items/index.html.haml
+.items-grid
+  = render(ItemCardComponent.with_collection(@items))
 ```
 
 ### Collection Test
@@ -670,16 +647,14 @@ class ListItemComponent < ViewComponent::Base
 end
 ```
 
-```erb
-<%# Usage %>
-<%= render(ListItemComponent.new(title: "John Doe")) do |item| %>
-  <% item.with_visual_avatar(src: "/avatar.jpg", alt: "John") %>
-  <% item.with_content do %>
-    <p>Software Engineer</p>
-  <% end %>
-  <% item.with_action(label: "View", url: "#") %>
-  <% item.with_action(label: "Edit", url: "#") %>
-<% end %>
+```haml
+-# Usage
+= render(ListItemComponent.new(title: "John Doe")) do |item|
+  - item.with_visual_avatar(src: "/avatar.jpg", alt: "John")
+  - item.with_content do
+    %p Software Engineer
+  - item.with_action(label: "View", url: "#")
+  - item.with_action(label: "Edit", url: "#")
 ```
 
 ## Stimulus Integration
@@ -714,19 +689,15 @@ class DropdownComponent < ViewComponent::Base
 end
 ```
 
-```erb
-<%# app/components/dropdown_component.html.erb %>
-<div data-<%= dropdown_data.map { |k, v| "#{k}='#{v}'" }.join(" ") %> class="dropdown">
-  <div data-action="click->dropdown#toggle">
-    <%= trigger %>
-  </div>
+```haml
+-# app/components/dropdown_component.html.haml
+.dropdown{ data: dropdown_data }
+  %div{ "data-action": "click->dropdown#toggle" }
+    = trigger
 
-  <div data-dropdown-target="menu" class="dropdown-menu hidden">
-    <% items.each do |item| %>
-      <%= item %>
-    <% end %>
-  </div>
-</div>
+  .dropdown-menu.hidden{"data-dropdown-target": "menu" }
+    - items.each do |item|
+      = item
 ```
 
 ## i18n Translations

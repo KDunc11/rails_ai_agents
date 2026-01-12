@@ -469,36 +469,29 @@ end
 ```
 
 **Activity feed view:**
-```erb
-<%# app/views/activities/index.html.erb %>
-<div id="activities" class="space-y-4">
-  <%= turbo_stream_from @scope, "activities" %>
+```haml
+-# app/views/activities/index.html.haml
+#activities.space-y-4
+  = turbo_stream_from @scope, "activities"
 
-  <% @activities.each do |activity| %>
-    <%= render "activities/activity", activity: activity %>
-  <% end %>
-</div>
+  - @activities.each do |activity|
+    = render "activities/activity", activity: activity
 
-<%# app/views/activities/_activity.html.erb %>
-<div id="<%= dom_id(activity) %>" class="activity">
-  <div class="flex items-start gap-3">
-    <%= icon activity.icon, class: "w-5 h-5 text-gray-400" %>
+-# app/views/activities/_activity/html.haml
+.activity{ id: "#{dom_id(activity)}" }
+  .flex.items-start.gap-3
+    = icon activity.icon, class: "w-5 h-5 text-gray-400"
 
-    <div class="flex-1">
-      <p class="text-sm">
-        <%= activity.description %>
-      </p>
+    .flex-1
+      %p.text-sm
+        = activity.description
 
-      <p class="text-xs text-gray-500 mt-1">
-        <%= time_ago_in_words(activity.created_at) %> ago
-      </p>
+      %p.text-xs.text-gray-500.mt-1
+        = time_ago_in_words(activity.created_at)
+        ago
 
-      <% if activity.actionable? %>
-        <%= link_to "View →", activity.url, class: "text-xs text-blue-600 hover:text-blue-800" %>
-      <% end %>
-    </div>
-  </div>
-</div>
+      - if activity.actionable?
+        = link_to "View →", activity.url, class: "text-xs text-blue-600 hover:text-blue-800"
 ```
 
 ## Pattern 3: Webhook System
@@ -846,42 +839,43 @@ export default class extends Controller {
 ```
 
 **Usage in views:**
-```erb
-<%# Track page views %>
-<div data-controller="tracking"
-     data-tracking-event-type-value="page_view"
-     data-tracking-trackable-type-value="Board"
-     data-tracking-trackable-id-value="<%= @board.id %>">
-  <!-- Page content -->
-</div>
+```haml
+-# Track page views
+%div{
+  "data-controller": "tracking",
+  "data-tracking-event-type-value": "page_view",
+  "data-tracking-trackable-id-value": "#{@board.id}",
+  "data-tracking-trackable-type-value": "Board"
+}
+  / Page content
 
-<%# Track link clicks %>
-<%= link_to "Export CSV",
-    export_board_path(@board),
-    data: {
-      controller: "tracking",
-      action: "click->tracking#track",
-      tracking_event_type_value: "export",
-      tracking_metadata_value: { format: "csv" }.to_json
-    } %>
+-# Track link clicks
+= link_to "Export CSV",                                |
+  export_board_path(@board),                           |
+  data: {                                              |
+    controller: "tracking",                            |
+    action: "click->tracking#track",                   |
+    tracking_event_type_value: "export",               |
+    tracking_metadata_value: { format: "csv" }.to_json |
+  }                                                    |
 
-<%# Track button clicks %>
-<button data-controller="tracking"
-        data-action="click->tracking#track"
-        data-tracking-event-type-value="button_click"
-        data-tracking-label="create-card">
+-# Track button clicks
+%button{
+  "data-action": "click->tracking#track",
+  "data-controller": "tracking",
+  "data-tracking-event-type-value": "button_click",
+  "data-tracking-label": "create-card"
+}
   Create Card
-</button>
-
-<%# Track form submissions %>
-<%= form_with model: @card,
-    data: {
-      controller: "tracking",
-      action: "submit->tracking#track",
-      tracking_event_type_value: "form_submit"
-    } do |f| %>
-  <!-- Form fields -->
-<% end %>
+= simple_form_for @card,                                     |
+  html: {                                                    |
+    data: {                                                  |
+      controller: "tracking",                                |
+      action: "submit->tracking#track",                      |
+      tracking_event_type_value: "form_submit"               |
+    }                                                        |
+  } do |f|                                                   |
+  / Form fields
 ```
 
 **Tracking controller:**
@@ -1022,34 +1016,28 @@ class CardAuditsController < ApplicationController
 end
 ```
 
-```erb
-<%# app/views/card_audits/index.html.erb %>
-<h1>Audit Trail: <%= @card.title %></h1>
+```haml
+-# app/views/card_audits/index.html.haml
+%h1
+  Audit Trail: #{@card.title}
 
-<div class="space-y-4">
-  <% @audits.each do |audit| %>
-    <div class="border-l-4 border-gray-300 pl-4">
-      <p class="text-sm font-medium">
-        <%= audit.updater.name %>
-      </p>
+.space-y-4
+  - @audits.each do |audit|
+    .border-l-4.border-gray-300.pl-4
+      %p.text-sm.font-medium
+        = audit.updater.name
 
-      <p class="text-xs text-gray-500">
-        <%= audit.created_at.to_s(:long) %>
-      </p>
+      %p.text-xs.text-gray-500
+        = audit.created_at.to_s(:long)
 
-      <dl class="mt-2 text-sm">
-        <% audit.changed_attributes.each do |attr| %>
-          <dt class="font-medium text-gray-700"><%= attr.humanize %></dt>
-          <dd class="text-gray-600">
-            <span class="line-through"><%= audit.old_value(attr) %></span>
+      %dl.mt-2.text-sm
+        - audit.changed_attributes.each do |attr|
+          %dt.font-medium.text-gray-700= attr.humanize
+
+          %dd.text-gray-600
+            %span.line-through= audit.old_value(attr)
             →
-            <span class="font-medium"><%= audit.new_value(attr) %></span>
-          </dd>
-        <% end %>
-      </dl>
-    </div>
-  <% end %>
-</div>
+            %span.font-medium= audit.new_value(attr)
 ```
 
 ## Pattern 6: Event Aggregation and Reporting
@@ -1124,55 +1112,45 @@ class ReportsController < ApplicationController
 end
 ```
 
-```erb
-<%# app/views/reports/activity.html.erb %>
-<h1>Activity Report</h1>
+```haml
+-# app/views/reports/activity.html.haml
+%h1 Activity Report
 
-<div class="grid grid-cols-3 gap-4 mt-6">
-  <div class="stat-card">
-    <h3>Card Moves</h3>
-    <p class="text-3xl"><%= @summary.card_moves %></p>
-  </div>
+.grid.grid-cols-3.gap-4.mt-6
+  .stat-card
+    %h3 Card Moves
+    %p.text-3xl= @summary.card_moves
 
-  <div class="stat-card">
-    <h3>Comments</h3>
-    <p class="text-3xl"><%= @summary.comments_added %></p>
-  </div>
+  .stat-card
+    %h3 Comments
+    %p.text-3xl= @summary.comments_added
 
-  <div class="stat-card">
-    <h3>Invitations</h3>
-    <p class="text-3xl"><%= @summary.members_invited %></p>
-  </div>
-</div>
+  .stat-card
+    %h3 Invitations
+    %p.text-3xl= @summary.members_invited
 
-<div class="mt-8">
-  <h2>Most Active Boards</h2>
-  <ul>
-    <% @summary.most_active_boards.each do |board, count| %>
-      <li>
-        <%= link_to board.name, board %>
-        <span class="text-gray-500">(<%= count %> events)</span>
-      </li>
-    <% end %>
-  </ul>
-</div>
+.mt-8
+  %h2 Most Active Boards
 
-<div class="mt-8">
-  <h2>Most Active Users</h2>
-  <ul>
-    <% @summary.most_active_users.each do |user, count| %>
-      <li>
-        <%= user.name %>
-        <span class="text-gray-500">(<%= count %> actions)</span>
-      </li>
-    <% end %>
-  </ul>
-</div>
+  %ul
+    - @summary.most_active_boards.each do |board, count|
+      %li
+        = link_to board.name, board
+        %span.text-gray-500
+          (#{count} events)
 
-<div class="mt-8">
-  <h2>Daily Activity</h2>
-  <%= line_chart @summary.daily_activity %>
-</div>
+.mt-8
+  %h2 Most Active Users
+  %ul
+    - @summary.most_active_users.each do |user, count|
+      %li
+        = user.name
+        %span.text-gray-500
+          (#{count} actions)
+
+.mt-8
+  %h2 Daily Activity
+  = line_chart @summary.daily_activity
 ```
 
 ## Testing Patterns

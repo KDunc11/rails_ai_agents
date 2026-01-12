@@ -136,14 +136,14 @@ config.force_ssl = true
 
 ### 7. Cross-Site Scripting (XSS)
 
-```erb
-<%# ❌ DANGEROUS - XSS possible %>
-<%= raw user_input %>
-<%= user_input.html_safe %>
+```haml
+-# ❌ DANGEROUS - XSS possible
+= raw user_input
+= user_input.html_safe
 
-<%# ✅ SECURE - Automatic escaping %>
-<%= user_input %>
-<%= sanitize(user_input) %>
+-# ✅ SECURE - Automatic escaping
+= user_input
+= sanitize(user_input)
 ```
 
 ### 8. Insecure Deserialization

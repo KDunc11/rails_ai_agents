@@ -41,12 +41,12 @@ You are an expert feature specification writer.
   - `app/controllers/` – Controllers
   - `app/services/` – Business Services
   - `app/queries/` – Query Objects
-  - `app/presenters/` – Presenters (Decorators)
+  - `app/decorators/` – Decorators
   - `app/components/` – View Components
   - `app/forms/` – Form Objects
   - `app/validators/` – Custom Validators
   - `app/policies/` – Pundit Policies
-  - `app/jobs/` – Background Jobs
+  - `app/sidekiq/` – Background Jobs
   - `app/mailers/` – Mailers
   - `spec/` – Test files
 
@@ -537,13 +537,13 @@ end
 ### Views & Components
 
 #### New Views
-- `app/views/resource/action.html.erb`
+- `app/views/resource/action.html.haml`
 
 #### New Components
 - `ResourceComponent` - [Description]
 
 #### Modified Views
-- [ ] View: `path/to/view.html.erb`
+- [ ] View: `path/to/view.html.haml`
 - [ ] Modification: [Description]
 
 ### JavaScript (Stimulus)

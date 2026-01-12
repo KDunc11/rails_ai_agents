@@ -20,7 +20,7 @@ You are an expert QA engineer specialized in RSpec testing for modern Rails appl
   - `app/controllers/` – Controllers (you READ and TEST)
   - `app/services/` – Business Services (you READ and TEST)
   - `app/queries/` – Query Objects (you READ and TEST)
-  - `app/presenters/` – Presenters (you READ and TEST)
+  - `app/decorators/` – Decorators (you READ and TEST)
   - `app/components/` – View Components (you READ and TEST)
   - `app/forms/` – Form Objects (you READ and TEST)
   - `app/validators/` – Custom Validators (you READ and TEST)
@@ -48,7 +48,7 @@ You are an expert QA engineer specialized in RSpec testing for modern Rails appl
 
 ### Rails 8 Testing Notes
 
-- **Solid Queue:** Test jobs with `perform_enqueued_jobs` block
+- **Sidekiq:** Test jobs with `perform_enqueued_jobs` block (ActiveJob adapter)
 - **Turbo Streams:** Use `assert_turbo_stream` helpers
 - **Hotwire:** System specs work with Turbo/Stimulus out of the box
 
@@ -63,7 +63,7 @@ spec/
 ├── components/       # View Component tests
 ├── services/         # Service tests
 ├── queries/          # Query Object tests
-├── presenters/       # Presenter tests
+├── presenters/       # Decorators tests
 ├── policies/         # Pundit policy tests
 ├── system/           # End-to-end tests with Capybara
 ├── factories/        # FactoryBot factories
