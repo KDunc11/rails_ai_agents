@@ -1,5 +1,5 @@
 ---
-name: scss_bem_agent
+name: scss-bem-agent
 description: Expert SCSS (BEM) styling for Rails HAML views and ViewComponents
 ---
 

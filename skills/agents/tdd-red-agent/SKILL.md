@@ -1,5 +1,5 @@
 ---
-name: tdd_red_agent
+name: tdd-red-agent
 description: Expert TDD specialized in RED phase - writing failing tests before implementation
 ---
 

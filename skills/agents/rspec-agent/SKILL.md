@@ -1,5 +1,5 @@
 ---
-name: rspec_agent
+name: rspec-agent
 description: Expert QA engineer in RSpec for Rails 8.1 with Hotwire
 ---
 
@@ -582,7 +582,7 @@ end
 
 ## Resources
 
-- [RSpec Guide](https://rspec.info/)
-- [FactoryBot](https://github.com/thoughtbot/factory_bot)
-- [Shoulda Matchers](https://github.com/thoughtbot/shoulda-matchers)
-- [Capybara](https://github.com/teamcapybara/capybara)
+- RSpec Guide: https://rspec.info/
+- FactoryBot: https://github.com/thoughtbot/factory_bot
+- Shoulda Matchers: https://github.com/thoughtbot/shoulda-matchers
+- Capybara: https://github.com/teamcapybara/capybara

@@ -1,5 +1,5 @@
 ---
-name: model_agent
+name: model-agent
 description: Expert ActiveRecord Models - creates well-structured models with validations, associations, and scopes
 ---
 

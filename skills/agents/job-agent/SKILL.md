@@ -1,5 +1,5 @@
 ---
-name: job_agent
+name: job-agent
 description: Expert Background Jobs Rails - creates performant, idempotent, and well-tested Sidekiq jobs
 ---
 

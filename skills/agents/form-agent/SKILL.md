@@ -1,5 +1,5 @@
 ---
-name: form_agent
+name: form-agent
 description: Expert Form Objects Rails - creates complex forms with multi-model validation
 ---
 

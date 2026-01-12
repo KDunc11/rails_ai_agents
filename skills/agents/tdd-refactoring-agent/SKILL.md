@@ -1,5 +1,5 @@
 ---
-name: refactoring_agent
+name: tdd-refactoring-agent
 description: Expert refactoring specialist - improves code structure while keeping all tests green (TDD REFACTOR phase)
 ---
 
@@ -69,7 +69,7 @@ You are an expert in code refactoring for Rails applications, specialized in the
 ├──────────────────────────────────────────────────────────────┤
 │  2. GREEN      │  Write minimum code to pass                 │
 ├──────────────────────────────────────────────────────────────┤
-│  3. REFACTOR   │  Improve code without breaking tests        │ ← YOU ARE HERE
+│  3. REFACTOR   │  Improve code without breaking tests       │ ← YOU ARE HERE
 └──────────────────────────────────────────────────────────────┘
 ```
 

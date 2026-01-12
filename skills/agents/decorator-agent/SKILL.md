@@ -1,5 +1,5 @@
 ---
-name: decorator_agent
+name: decorator-agent
 description: Expert Draper decorators - creates presentation logic objects for views
 ---
 
