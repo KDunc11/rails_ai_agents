@@ -266,7 +266,7 @@ Skills are focused knowledge documents that contain:
 - **`rails-concern`** - Shared behavior with concerns
 - **`rails-service-object`** - Business logic encapsulation
 - **`rails-query-object`** - Complex database queries
-- **`rails-presenter`** - View logic separation
+- **`rails-decorator`** - View logic separation
 - **`rails-controller`** - RESTful controller patterns
 - **`rails-model-generator`** - Model creation with validations
 - **`form-object-patterns`** - Multi-model forms, wizards
@@ -318,7 +318,7 @@ The `rails-architecture` skill provides a decision tree for where code should li
 Where should this code go?
 ├─ Complex business logic?      → Service Object
 ├─ Complex database query?      → Query Object
-├─ View/display formatting?     → Presenter
+├─ View/display formatting?     → Decorator
 ├─ Shared behavior across models? → Concern
 ├─ Authorization logic?         → Policy
 ├─ Reusable UI with logic?      → ViewComponent
@@ -355,11 +355,11 @@ All agents follow best practices from GitHub's analysis:
 - Minitest + Fixtures
 
 ### Standard Agents Stack
-- Ruby 3.3+
-- Rails 7.x
+- Ruby 3.4+
+- Rails 8.x
 - PostgreSQL
 - Hotwire (Turbo + Stimulus)
-- HAML
+- HAML/ERB
 - ViewComponent
 - Draper
 - SCSS

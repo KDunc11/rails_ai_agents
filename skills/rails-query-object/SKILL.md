@@ -204,10 +204,10 @@ def index
   @leads_by_status = LeadsByStatusQuery.new(account: current_account).call
 end
 
-# Aggregation query with presenter
+# Aggregation query with decorator
 def index
   stats_query = DashboardStatsQuery.new(user: current_user)
-  @stats = DashboardStatsPresenter.new(stats_query)
+  @stats = DashboardStatsDecorator.decorate(stats_query)
 end
 ```
 

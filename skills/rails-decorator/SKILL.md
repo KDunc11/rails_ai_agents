@@ -1,80 +1,70 @@
 ---
-name: rails-presenter
-description: Creates presenter objects for view formatting using SimpleDelegator pattern with TDD. Use when extracting view logic from models, formatting data for display, creating badges/labels, or when user mentions presenters, view models, formatting, or display helpers.
+name: rails-decorator
+description: Creates decorator objects for view formatting using Decorator pattern with TDD. Use when extracting view logic from models, formatting data for display, creating badges/labels, or when user mentions decorators, view models, formatting, or display helpers.
 allowed-tools: Read, Write, Edit, Bash(bundle exec rspec:*), Glob, Grep
 ---
 
-# Rails Presenter Generator (TDD)
+# Rails Decorator Generator (TDD)
 
-Creates presenters that wrap models for view-specific formatting with specs first.
+Creates decorators that wrap models for view-specific formatting with specs first.
 
 ## Quick Start
 
-1. Write failing spec in `spec/presenters/`
+1. Write failing spec in `spec/decorators/`
 2. Run spec to confirm RED
-3. Implement presenter extending `BasePresenter`
+3. Implement decorator extending `ApplicationDecorator`
 4. Run spec to confirm GREEN
 
 ## Project Conventions
 
-Presenters in this project:
-- Extend `BasePresenter < SimpleDelegator`
-- Include ActionView helpers for formatting
-- Delegate model methods via SimpleDelegator
+Decorators in this project:
+- Extend `ApplicationDecorator < Draper::Decorator`
+- Use helpers for formatting via `h.`
+- Delegate all model methods with `delegate_all`
 - Return HTML-safe strings for badges/formatted output
 - Use I18n for all user-facing text
 
-## BasePresenter (Already Exists)
+## ApplicationDecorator (Already Exists)
 
 ```ruby
-# app/presenters/base_presenter.rb
-class BasePresenter < SimpleDelegator
-  include ActionView::Helpers::NumberHelper
-  include ActionView::Helpers::DateHelper
-  include ActionView::Helpers::UrlHelper
-  include ActionView::Helpers::TagHelper
-  include ActionView::Helpers::TextHelper
-
-  def initialize(model, view_context = nil)
-    super(model)
-    @view_context = view_context
-  end
-
-  def model
-    __getobj__
-  end
-
-  alias_method :object, :model
+# app/decorators/base_decorator.rb
+class ApplicationDecorator < Draper::Decorator
+  # Define methods for all decorated objects.
+  # Helpers are accessed through `helpers` (aka `h`). For example:
+  #
+  #   def percent_amount
+  #     h.number_to_percentage object.amount, precision: 2
+  #   end
 end
 ```
 
 ## TDD Workflow
 
-### Step 1: Create Presenter Spec (RED)
+### Step 1: Create Decorator Spec (RED)
 
 ```ruby
-# spec/presenters/[resource]_presenter_spec.rb
-RSpec.describe [Resource]Presenter do
+# spec/decorators/[resource]_decorator_spec.rb
+RSpec.describe [Resource]Decorator do
   let(:resource) { create(:resource, name: "Test", status: :active) }
-  let(:presenter) { described_class.new(resource) }
+  let(:subject) { described_class.new(resource) }
 
   describe "delegation" do
     it "delegates to the model" do
-      expect(presenter.name).to eq("Test")
+      expect(subject.name).to eq("Test")
     end
 
     it "responds to model methods" do
-      expect(presenter).to respond_to(:name, :status, :created_at)
+      expect(subject).to respond_to(:name, :status, :created_at)
     end
 
     it "exposes the underlying model" do
-      expect(presenter.model).to eq(resource)
+      expect(subject.model).to eq(resource)
     end
   end
 
   describe "#display_name" do
     it "returns the formatted name" do
-      expect(presenter.display_name).to eq("Test")
+      expect(subject.display_name).to eq("Test")
     end
   end
 
@@ -84,7 +74,7 @@ RSpec.describe [Resource]Presenter do
 
       it "returns formatted date in French" do
         I18n.with_locale(:fr) do
-          expect(presenter.formatted_date).to include("2026")
+          expect(subject.formatted_date).to include("2026")
         end
       end
     end
@@ -93,7 +83,7 @@ RSpec.describe [Resource]Presenter do
       before { resource.update(event_date: nil) }
 
       it "returns placeholder span" do
-        result = presenter.formatted_date
+        result = subject.formatted_date
         expect(result).to include("text-slate-400")
         expect(result).to include("italic")
       end
@@ -102,28 +92,28 @@ RSpec.describe [Resource]Presenter do
 
   describe "#status_badge" do
     it "returns HTML-safe string" do
-      expect(presenter.status_badge).to be_html_safe
+      expect(subject.status_badge).to be_html_safe
     end
 
     it "includes status text" do
-      expect(presenter.status_badge).to include("Active")
+      expect(subject.status_badge).to include("Active")
     end
 
     it "uses correct color classes for active" do
       resource.update(status: :active)
-      expect(presenter.status_badge).to include("bg-green-100")
+      expect(subject.status_badge).to include("bg-green-100")
     end
 
     it "uses correct color classes for inactive" do
       resource.update(status: :inactive)
-      expect(presenter.status_badge).to include("bg-red-100")
+      expect(subject.status_badge).to include("bg-red-100")
     end
   end
 
   describe "#formatted_currency" do
     it "formats cents as euros" do
       resource.update(amount_cents: 15000)
-      expect(presenter.formatted_amount).to eq("150,00 EUR")
+      expect(subject.formatted_amount).to eq("150,00 EUR")
     end
   end
 end
@@ -132,14 +122,16 @@ end
 ### Step 2: Run Spec (Confirm RED)
 
 ```bash
-bundle exec rspec spec/presenters/[resource]_presenter_spec.rb
+bundle exec rspec spec/decorators/[resource]_decorator_spec.rb
 ```
 
-### Step 3: Implement Presenter (GREEN)
+### Step 3: Implement Decorator (GREEN)
 
 ```ruby
-# app/presenters/[resource]_presenter.rb
-class [Resource]Presenter < BasePresenter
+# app/decorators/[resource]_decorator.rb
+class [Resource]Decorator < ApplicationDecorator
+  delegate_all
+
   # Color mapping for Open/Closed Principle
   STATUS_COLORS = {
     active: "bg-green-100 text-green-800",
@@ -159,7 +151,7 @@ class [Resource]Presenter < BasePresenter
   end
 
   def status_badge
-    tag.span(
+    h.tag.span(
       status_text,
       class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium #{status_color}"
     )
@@ -187,8 +179,8 @@ class [Resource]Presenter < BasePresenter
   end
 
   def not_specified_span
-    tag.span(
-      I18n.t("presenters.common.not_specified"),
+    h.tag.span(
+      I18n.t("decorators.common.not_specified"),
       class: "text-slate-400 italic"
     )
   end
@@ -198,10 +190,10 @@ end
 ### Step 4: Run Spec (Confirm GREEN)
 
 ```bash
-bundle exec rspec spec/presenters/[resource]_presenter_spec.rb
+bundle exec rspec spec/decorators/[resource]_decorator_spec.rb
 ```
 
-## Common Presenter Methods
+## Common Decorator Methods
 
 ### Date Formatting
 
@@ -220,9 +212,9 @@ def days_until
   return nil if event_date.nil?
   days = (event_date - Date.today).to_i
   case days
-  when 0 then I18n.t("presenters.event.today")
-  when 1 then I18n.t("presenters.event.tomorrow")
-  when 2..7 then I18n.t("presenters.event.days_from_now", count: days)
+  when 0 then I18n.t("decorators.event.today")
+  when 1 then I18n.t("decorators.event.tomorrow")
+  when 2..7 then I18n.t("decorators.event.days_from_now", count: days)
   else distance_of_time_in_words_to_now(event_date)
   end
 end
@@ -248,7 +240,7 @@ end
 
 ```ruby
 def type_badge
-  tag.span(
+  h.tag.span(
     display_type,
     class: "inline-flex items-center px-2 py-1 rounded text-xs font-medium #{type_color}"
   )
@@ -258,7 +250,7 @@ def display_tags
   return not_specified_span if tags.blank?
   safe_join(
     tags.split(",").map(&:strip).map do |tag_text|
-      tag.span(tag_text, class: "inline-block bg-slate-100 px-2 py-1 rounded text-xs mr-1")
+      h.tag.span(tag_text, class: "inline-block bg-slate-100 px-2 py-1 rounded text-xs mr-1")
     end
   )
 end
@@ -282,19 +274,19 @@ end
 
 ```ruby
 # Single resource
-@event = EventPresenter.new(@event)
+@event = @event.decorate
 
 # Collection
-@events = events.map { |e| EventPresenter.new(e) }
+@events = @events.decorate # or EventDecorator.decorate_collection(@events)
 
-# With view context (for route helpers)
-@event = EventPresenter.new(@event, view_context)
+# With additional context
+@event.decorate(context: { user: current_user })
 ```
 
 ## Checklist
 
 - [ ] Spec written first (RED)
-- [ ] Extends `BasePresenter`
+- [ ] Extends `ApplicationDecorator`
 - [ ] Delegation tested
 - [ ] HTML output is `html_safe`
 - [ ] Uses I18n for all text

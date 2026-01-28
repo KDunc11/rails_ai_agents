@@ -356,7 +356,9 @@ end
 ### Instance Variable Memoization
 
 ```ruby
-class EventPresenter < BasePresenter
+class EventDecorator < ApplicationDecorator
+  delegate_all
+
   def vendor_count
     @vendor_count ||= event.vendors.count
   end

@@ -16,7 +16,7 @@ Rails 8 follows "convention over configuration" with a layered architecture that
 Where should this code go?
 │
 ├─ Is it view/display formatting?
-│   └─ → Presenter (see: rails-presenter skill)
+│   └─ → Decorator (see: rails-decorator skill)
 │
 ├─ Is it complex business logic?
 │   └─ → Service Object (see: rails-service-object skill)
@@ -84,7 +84,7 @@ Where should this code go?
            ┌──────────────┴──────────────┐
            ▼                             ▼
 ┌─────────────────────┐       ┌─────────────────────┐
-│     PRESENTER       │       │    VIEW COMPONENT   │
+│     DECORATOR       │       │    VIEW COMPONENT   │
 │  • Formatting       │       │  • Reusable UI      │
 │  • Display logic    │       │  • Encapsulated     │
 └──────────┬──────────┘       └──────────┬──────────┘
@@ -120,7 +120,7 @@ See [layer-interactions.md](reference/layer-interactions.md) for detailed exampl
 | **Model** | Data, validations, relations | Display logic, HTTP |
 | **Service** | Business logic, orchestration | HTTP, display logic |
 | **Query** | Complex database queries | Business logic |
-| **Presenter** | View formatting, badges | Business logic, queries |
+| **Decorator** | View formatting, badges | Business logic, queries |
 | **Policy** | Authorization rules | Business logic |
 | **Component** | Reusable UI encapsulation | Business logic |
 | **Job** | Async processing | HTTP, display logic |
@@ -256,7 +256,7 @@ end
 | Simple CRUD (< 10 lines) | Keep in controller | Service object |
 | Used only once | Inline the code | Abstraction |
 | Simple query with 1-2 conditions | Model scope | Query object |
-| Basic text formatting | Helper method | Presenter |
+| Basic text formatting | Helper method | Decorator |
 | Single model form | `form_with model:` | Form object |
 | Simple partial without logic | Partial | ViewComponent |
 
@@ -314,14 +314,14 @@ end
 
 → See **rails-query-object** skill for details.
 
-### Use Presenters When:
+### Use Decorators When:
 
 - Formatting data for display
 - Status badges with colors
 - Currency/date formatting
 - Conditional display logic
 
-→ See **rails-presenter** skill for details.
+→ See **rails-decorator** skill for details.
 
 ### Use Concerns When:
 
@@ -405,7 +405,7 @@ Database-backed caching, no Redis required.
 | God Model | Model > 500 lines | Extract services/concerns |
 | Fat Controller | Logic in controllers | Move to services |
 | Callback Hell | Complex model callbacks | Use services |
-| Helper Soup | Massive helper modules | Use presenters/components |
+| Helper Soup | Massive helper modules | Use decorators/components |
 | N+1 Queries | Unoptimized queries | Use `.includes()`, query objects |
 | Stringly Typed | Magic strings everywhere | Use constants, enums |
 | Premature Abstraction | Service for 3 lines | Keep in controller |
@@ -419,7 +419,7 @@ Database-backed caching, no Redis required.
 | Model | Unit | Validations, scopes, methods |
 | Service | Unit | Business logic, edge cases |
 | Query | Unit | Query results, tenant isolation |
-| Presenter | Unit | Formatting, HTML output |
+| Decorator | Unit | Formatting, HTML output |
 | Controller | Request | Integration, HTTP flow |
 | Component | Component | Rendering, variants |
 | Policy | Unit | Authorization rules |
@@ -438,7 +438,7 @@ Database-backed caching, no Redis required.
 4. **Query** - Add for complex queries (if needed)
 5. **Controller** - Keep it thin!
 6. **Form** - Use for multi-model forms (if needed)
-7. **Presenter** - Format for display
+7. **Decorator** - Format for display
 8. **Component** - Build reusable UI
 9. **Mailer** - Add transactional emails (if needed)
 10. **Job** - Add background processing (if needed)
@@ -449,7 +449,7 @@ Database-backed caching, no Redis required.
 |--------|--------|
 | Model > 300 lines | Extract concern or service |
 | Controller action > 15 lines | Extract service |
-| View logic in helpers | Use presenter |
+| View logic in helpers | Use decorator |
 | Repeated query patterns | Extract query object |
 | Complex partial with logic | Use ViewComponent |
 | Form with multiple models | Use form object |
@@ -461,7 +461,7 @@ Database-backed caching, no Redis required.
 |----------|--------|
 | **Data Layer** | rails-model-generator, rails-query-object, database-migrations |
 | **Business Logic** | rails-service-object, rails-concern, form-object-patterns |
-| **Presentation** | rails-presenter, viewcomponent-patterns |
+| **Presentation** | rails-decorator, viewcomponent-patterns |
 | **Controllers** | rails-controller, api-versioning |
 | **Auth** | authentication-flow, authorization-pundit |
 | **Background** | solid-queue-setup, action-mailer-patterns |

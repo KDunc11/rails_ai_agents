@@ -245,12 +245,14 @@ class Event < ApplicationRecord
 end
 ```
 
-### In Presenters
+### In Decorators
 
 ```ruby
-class EventPresenter < BasePresenter
+class EventDecorator < ApplicationDecorator
+  delegate_all
+
   def status_badge
-    tag.span(
+    h.tag.span(
       status_text,
       class: "badge #{status_class}"
     )
@@ -268,7 +270,7 @@ class EventPresenter < BasePresenter
   end
 
   def not_specified
-    tag.span(I18n.t("common.messages.not_specified"), class: "text-muted")
+    h.tag.span(I18n.t("common.messages.not_specified"), class: "text-muted")
   end
 end
 ```
@@ -308,7 +310,7 @@ en:
 ### Localizing Dates
 
 ```ruby
-# In views or presenters
+# In views or decorators
 I18n.l(Date.current)                    # "January 15, 2024"
 I18n.l(Date.current, format: :short)    # "Jan 15"
 I18n.l(Date.current, format: :long)     # "Wednesday, January 15, 2024"

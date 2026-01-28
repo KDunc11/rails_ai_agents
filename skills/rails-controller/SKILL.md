@@ -21,7 +21,7 @@ Creates RESTful controllers following project conventions with request specs fir
 This project uses:
 - **Pundit** for authorization (`authorize @resource`, `policy_scope(Model)`)
 - **Pagy** for pagination
-- **Presenters** for view formatting
+- **Decorators** for view formatting
 - **Multi-tenancy** via `current_account`
 - **Turbo Stream** responses for dynamic updates
 
@@ -104,12 +104,12 @@ class [Resources]Controller < ApplicationController
   def index
     authorize [Resource], :index?
     @pagy, resources = pagy(policy_scope([Resource]).order(created_at: :desc))
-    @[resources] = resources.map { |r| [Resource]Presenter.new(r) }
+    @[resources] = resources.map { |r| [Resource]Decorator.decorator(r) }
   end
 
   def show
     authorize @[resource]
-    @[resource] = [Resource]Presenter.new(@[resource])
+    @[resource] = [Resource]Decorator.decorate(@[resource])
   end
 
   def new
@@ -221,6 +221,6 @@ end
 - [ ] Authorization tested (404 for unauthorized)
 - [ ] Controller uses `authorize` on every action
 - [ ] Controller uses `policy_scope` for queries
-- [ ] Presenter wraps models for views
+- [ ] Decorator wraps models for views
 - [ ] Strong parameters defined
 - [ ] All specs GREEN

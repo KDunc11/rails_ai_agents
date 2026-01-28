@@ -316,7 +316,7 @@ class ModalComponent < ApplicationComponent
 end
 ```
 
-### Pattern 5: Wrapping Models (Presenter-like)
+### Pattern 5: Wrapping Models (Decorator-like)
 
 ```ruby
 # app/components/event_card_component.rb

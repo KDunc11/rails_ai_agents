@@ -582,7 +582,7 @@ For every code review, check:
 - [ ] Uses Turbo Streams for real-time updates
 - [ ] Stimulus controllers are single-purpose
 - [ ] Fragment caching with cache keys
-- [ ] No complex logic in views (use helpers/presenters)
+- [ ] No complex logic in views (use helpers/decorators)
 
 ### Jobs
 - [ ] Uses Solid Queue (not Sidekiq/Redis)
