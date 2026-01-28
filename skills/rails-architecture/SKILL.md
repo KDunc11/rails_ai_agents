@@ -99,7 +99,7 @@ ASYNC FLOWS:
 ┌─────────────────────┐       ┌─────────────────────┐
 │        JOB          │       │      CHANNEL        │
 │  • Background work  │       │  • Real-time        │
-│  • Solid Queue      │       │  • WebSockets       │
+│  • Sidekiq          │       │  • WebSockets       │
 └─────────────────────┘       └─────────────────────┘
 
 EMAIL FLOWS:
@@ -136,20 +136,20 @@ app/
 ├── components/          # ViewComponents (UI + logic)
 ├── controllers/
 │   └── concerns/        # Shared controller behavior
+├── decorators/          # View formatting
 ├── forms/               # Form objects
 ├── helpers/             # Simple view helpers (avoid)
-├── jobs/                # Background jobs (Solid Queue)
 ├── mailers/             # Action Mailer classes
 ├── models/
 │   └── concerns/        # Shared model behavior
 ├── policies/            # Pundit authorization
-├── presenters/          # View formatting
 ├── queries/             # Complex queries
 ├── services/            # Business logic
 │   └── result.rb        # Shared Result class
-└── views/
-    └── layouts/
-        └── mailer.html.erb  # Email layout
+├── views/
+│    └── layouts/
+│        └── mailer.html.erb  # Email layout
+└── workers/             # Background jobs (Sidekiq)
 ```
 
 ## Core Principles
@@ -371,11 +371,11 @@ Uses `has_secure_password` with Session model, Current class, and password reset
 
 → See **authentication-flow** skill for details.
 
-### Background Jobs (Solid Queue)
+### Background Jobs (Sidekiq)
 
 Database-backed job processing, no Redis required.
 
-→ See **solid-queue-setup** skill for details.
+→ See **sidekiq-setup** skill for details.
 
 ### Real-time (Action Cable + Solid Cable)
 
