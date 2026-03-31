@@ -40,8 +40,8 @@ def _extract_frames(event_data: dict) -> list[dict]:
     frames = []
     for entry in event_data.get("entries", []):
         if entry.get("type") == "exception":
-            for exc in entry.get("data", {}).get("values", []):
-                frames.extend(exc.get("stacktrace", {}).get("frames", []))
+            for exc in (entry.get("data") or {}).get("values", []):
+                frames.extend((exc.get("stacktrace") or {}).get("frames", []))
     return frames
 
 
@@ -57,7 +57,7 @@ def _build_issue_summary(issue: dict) -> dict:
         "user_count": issue.get("userCount", 0),
         "first_seen": issue.get("firstSeen", ""),
         "last_seen": issue.get("lastSeen", ""),
-        "project_name": issue.get("project", {}).get("name", ""),
+        "project_name": (issue.get("project") or {}).get("name", ""),
         "permalink": issue.get("permalink", ""),
     }
 
@@ -152,7 +152,7 @@ async def get_issue_detail(
     exception_value = ""
     for entry in event.get("entries", []):
         if entry.get("type") == "exception":
-            values = entry.get("data", {}).get("values", [])
+            values = (entry.get("data") or {}).get("values", [])
             if values:
                 exception_type = values[0].get("type", "")
                 exception_value = values[0].get("value", "")
@@ -170,7 +170,7 @@ async def get_issue_detail(
         "count": int(issue.get("count", 0)),
         "first_seen": issue.get("firstSeen", ""),
         "last_seen": issue.get("lastSeen", ""),
-        "project_name": issue.get("project", {}).get("name", ""),
+        "project_name": (issue.get("project") or {}).get("name", ""),
         "permalink": issue.get("permalink", ""),
         "exception_type": exception_type,
         "exception_value": exception_value,

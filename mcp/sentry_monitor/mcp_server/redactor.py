@@ -31,13 +31,13 @@ def redact_event(event_data: dict, include_pii: bool = False) -> dict:
 
         # Strip breadcrumb data
         if entry.get("type") == "breadcrumbs":
-            for crumb in entry.get("data", {}).get("values", []):
+            for crumb in (entry.get("data") or {}).get("values", []):
                 crumb.pop("data", None)
 
         # Strip local variables from stack frames
         if entry.get("type") == "exception":
-            for exc_value in entry.get("data", {}).get("values", []):
-                frames = exc_value.get("stacktrace", {}).get("frames", [])
+            for exc_value in (entry.get("data") or {}).get("values", []):
+                frames = (exc_value.get("stacktrace") or {}).get("frames", [])
                 for frame in frames:
                     frame.pop("vars", None)
 
