@@ -111,6 +111,27 @@ cp -r .claude/ /path/to/your-rails-app/.claude/
 - **JSON Schema** for editor autocomplete
 - **Smart model routing**: opus for architecture/security, sonnet for coding, haiku for linting
 
+### Statusline (`statusline/`)
+
+A two-line statusline that surfaces the signals you actually need while working: git state, model, and usage budgets.
+
+![Statusline](statusline/screenshot.png)
+
+- **Line 1** — current branch (with a `✗` marker when the working tree is dirty), model name, and reasoning effort level
+- **Line 2** — context window usage, 5-hour rate-limit usage with reset countdown, 7-day rate-limit usage with reset countdown
+- **Color-coded thresholds** — green under 50%, yellow 50–79%, red at 80%+ so you can see budget pressure at a glance
+
+Wire it up in `~/.claude/settings.json`:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bash /absolute/path/to/statusline/statusline.sh"
+  }
+}
+```
+
 ## Spec Driven Development (SDD) Kit
 
 A structured specification-to-implementation pipeline powered by 11 slash commands. SDD enforces a disciplined workflow: define what you're building before writing code, validate requirements quality, then implement from a task plan.
