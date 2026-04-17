@@ -99,8 +99,8 @@
 ## Form with Frame Target
 
 ```erb
-<%= form_with model: @resource,
-              data: { turbo_frame: "search_results" } do |f| %>
+<%= simple_form_for @resource,
+                   html: { data: { turbo_frame: "search_results" } } do |f| %>
   <%= f.search_field :query %>
   <%= f.submit "Search" %>
 <% end %>

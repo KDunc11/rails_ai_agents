@@ -23,7 +23,7 @@ See `references/testing-patterns.md` for code examples, common patterns, and ant
 | Request spec | API endpoints, HTTP responses | `spec/requests/` |
 | System spec | Full user flows with JavaScript | `spec/system/` |
 | Service spec | Business logic, complex operations | `spec/services/` |
-| Job spec | Background job behavior | `spec/jobs/` |
+| Job spec | Background job behavior | `spec/sidekiq/` |
 
 ## Workflow Steps
 

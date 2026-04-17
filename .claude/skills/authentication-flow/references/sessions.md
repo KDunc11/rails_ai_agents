@@ -167,9 +167,9 @@ end
 ### Scheduled Cleanup Job
 
 ```ruby
-# app/jobs/cleanup_expired_sessions_job.rb
+# app/sidekiq/cleanup_expired_sessions_job.rb
 class CleanupExpiredSessionsJob < ApplicationJob
-  queue_as :low
+  sidekiq_options queue: :low
 
   def perform
     Session.expired.delete_all

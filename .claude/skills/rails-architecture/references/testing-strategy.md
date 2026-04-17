@@ -10,7 +10,7 @@
     /--------\
    /          \  Unit Specs (many)
   --------------
-  Models, Services, Queries, Presenters
+  Models, Services, Queries, Decorators
 ```
 
 ## Unit Tests
@@ -143,33 +143,33 @@ RSpec.describe ActiveEventsQuery do
 end
 ```
 
-### Presenter Specs
+### Decorator Specs
 
 Test formatting and HTML output:
 
 ```ruby
-# spec/presenters/event_presenter_spec.rb
-RSpec.describe EventPresenter do
+# spec/decorators/event_decorator_spec.rb
+RSpec.describe EventDecorator do
   let(:event) { create(:event, name: "Test Event", status: :confirmed) }
-  let(:presenter) { described_class.new(event) }
+  let(:decorator) { described_class.decorate(event) }
 
   describe "delegation" do
     it "delegates to model" do
-      expect(presenter.name).to eq("Test Event")
+      expect(decorator.name).to eq("Test Event")
     end
   end
 
   describe "#status_badge" do
     it "returns HTML-safe string" do
-      expect(presenter.status_badge).to be_html_safe
+      expect(decorator.status_badge).to be_html_safe
     end
 
     it "includes status text" do
-      expect(presenter.status_badge).to include("Confirmed")
+      expect(decorator.status_badge).to include("Confirmed")
     end
 
     it "uses correct color for confirmed" do
-      expect(presenter.status_badge).to include("bg-green")
+      expect(decorator.status_badge).to include("bg-green")
     end
   end
 
@@ -178,7 +178,7 @@ RSpec.describe EventPresenter do
       before { event.update(event_date: Date.new(2026, 7, 15)) }
 
       it "formats date" do
-        expect(presenter.formatted_date).to include("2026")
+        expect(decorator.formatted_date).to include("2026")
       end
     end
 
@@ -186,7 +186,7 @@ RSpec.describe EventPresenter do
       before { event.update(event_date: nil) }
 
       it "returns placeholder" do
-        expect(presenter.formatted_date).to include("text-slate-400")
+        expect(decorator.formatted_date).to include("text-slate-400")
       end
     end
   end

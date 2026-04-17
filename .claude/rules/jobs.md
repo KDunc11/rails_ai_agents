@@ -1,12 +1,12 @@
 ---
 paths:
-  - "app/jobs/**/*.rb"
-  - "spec/jobs/**/*.rb"
+  - "app/sidekiq/**/*.rb"
+  - "spec/sidekiq/**/*.rb"
 ---
 
 # Background Job Conventions
 
-- Use Solid Queue (database-backed, Rails 8 default)
+- Use Sidekiq (database-backed, Rails 8 default)
 - Jobs must be idempotent -- safe to retry
 - Pass IDs, not full objects (serialization safety)
 - Use `discard_on ActiveRecord::RecordNotFound` for deleted records

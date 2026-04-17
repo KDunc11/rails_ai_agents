@@ -5,14 +5,26 @@
 ```ruby
 # app/forms/application_form.rb
 class ApplicationForm
-  include ActiveModel::Model
+  extend ActiveModel::Naming
   include ActiveModel::Attributes
+  include ActiveModel::Attributes::Normalization
+  include ActiveModel::Conversion
   include ActiveModel::Validations
+  include ActiveModel::Validations::Callbacks
 
-  def save
+  def assign_attributes(attributes)
+    attributes.each do |key, value|
+      public_send(:"#{key}=", value) if respond_to?(:"#{key}=")
+    end
+  end
+
+  def submit(params = {})
+    assign_attributes(params) if params
+
     return false unless valid?
 
-    persist!
+    process
+
     true
   rescue ActiveRecord::RecordInvalid => e
     errors.add(:base, e.message)
@@ -21,8 +33,8 @@ class ApplicationForm
 
   private
 
-  def persist!
-    raise NotImplementedError, "Subclasses must implement #persist!"
+  def process
+    raise NotImplementedError, "form must implement #process method"
   end
 end
 ```
@@ -51,7 +63,7 @@ class EntityRegistrationForm < ApplicationForm
 
   private
 
-  def persist!
+  def processs
     ActiveRecord::Base.transaction do
       @entity = create_entity
       create_contact_info
@@ -104,7 +116,7 @@ class EntityWithItemsForm < ApplicationForm
 
   private
 
-  def persist!
+  def perform
     ActiveRecord::Base.transaction do
       @entity = create_entity
       create_items
@@ -176,7 +188,7 @@ class ContentSubmissionForm < ApplicationForm
 
   private
 
-  def persist!
+  def perform
     ActiveRecord::Base.transaction do
       @submission = create_submission
       create_scores
@@ -255,7 +267,7 @@ class UserProfileForm < ApplicationForm
 
   private
 
-  def persist!
+  def perform
     user.update!(
       first_name: first_name,
       last_name: last_name,

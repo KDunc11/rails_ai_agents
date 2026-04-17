@@ -131,7 +131,7 @@ ActiveStorage.start()
 ```
 
 ```erb
-<%= form_with model: @event do |f| %>
+<%= simple_form_for @event do |f| %>
   <%= f.file_field :photos, multiple: true, direct_upload: true %>
 <% end %>
 ```

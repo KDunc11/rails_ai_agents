@@ -1,43 +1,28 @@
-# Presenter Patterns
+# Decorator Patterns
 
-## ApplicationPresenter Base Class
+## ApplicationDecorator Base Class
 
 ```ruby
-# app/presenters/application_presenter.rb
-class ApplicationPresenter < SimpleDelegator
-  include ActionView::Helpers::TagHelper
-  include ActionView::Helpers::NumberHelper
-  include ActionView::Helpers::DateHelper
-  include ActionView::Helpers::UrlHelper
-  include Rails.application.routes.url_helpers
+# app/decorators/application_decorator.rb
+class ApplicationDecorator < Draper::Decorator
+  delegate_all
 
-  attr_reader :object
+  # define methods avaiable to all other decorators
+  # private
 
-  def initialize(object, view_context = nil)
-    @object = object
-    @view_context = view_context
-    super(object)
-  end
-
-  def h
-    @view_context
-  end
-
-  # Helper to create presenter instances
-  def self.present(object, view_context = nil)
-    return nil if object.nil?
-    return object.map { |item| new(item, view_context) } if object.respond_to?(:map)
-
-    new(object, view_context)
-  end
+  # def format_date(date)
+  #   date.strftime("%B %d, %Y")
+  # end
 end
 ```
 
-## Basic Presenter Structure
+## Basic Decorator Structure
 
 ```ruby
-# app/presenters/entity_presenter.rb
-class EntityPresenter < ApplicationPresenter
+# app/decorators/entity_decorator.rb
+class EntityDecorator < ApplicationDecorator
+  delegate_all
+
   # Delegate to the wrapped model
   delegate :id, :name, :status, :created_at, to: :object
 
@@ -103,11 +88,13 @@ class EntityPresenter < ApplicationPresenter
 end
 ```
 
-## User Presenter
+## User Decorator
 
 ```ruby
-# app/presenters/user_presenter.rb
-class UserPresenter < ApplicationPresenter
+# app/decorators/user_decorator.rb
+class UserDecorator < ApplicationDecorator
+  delegate_all
+
   delegate :id, :email, :first_name, :last_name, :created_at, to: :object
 
   # Display name with fallback
@@ -152,11 +139,13 @@ class UserPresenter < ApplicationPresenter
 end
 ```
 
-## Post Presenter with Rich Formatting
+## Post Decorator with Rich Formatting
 
 ```ruby
-# app/presenters/post_presenter.rb
-class PostPresenter < ApplicationPresenter
+# app/decorators/post_decorator.rb
+class PostDecorator < ApplicationDecorator
+  delegate_all
+
   delegate :id, :title, :body, :status, :published_at, :author, to: :object
 
   # Formatting
@@ -220,67 +209,13 @@ class PostPresenter < ApplicationPresenter
 end
 ```
 
-## Collection Presenter
+## Order Decorator with Number Formatting
 
 ```ruby
-# app/presenters/entity_collection_presenter.rb
-class EntityCollectionPresenter
-  include ActionView::Helpers::TagHelper
+# app/decorators/order_decorator.rb
+class OrderDecorator < ApplicationDecorator
+  delegate_all
 
-  attr_reader :entities, :view_context
-
-  def initialize(entities, view_context = nil)
-    @entities = entities
-    @view_context = view_context
-  end
-
-  def h
-    @view_context
-  end
-
-  # Collection stats
-  def total_count
-    entities.size
-  end
-
-  def published_count
-    entities.count { |e| e.status == 'published' }
-  end
-
-  def draft_count
-    entities.count { |e| e.status == 'draft' }
-  end
-
-  # Formatting
-  def summary
-    "#{total_count} entities (#{published_count} published, #{draft_count} drafts)"
-  end
-
-  # Grouped display
-  def by_status
-    entities.group_by(&:status)
-  end
-
-  def presented_entities
-    entities.map { |entity| EntityPresenter.new(entity, view_context) }
-  end
-
-  # Empty state
-  def empty?
-    entities.empty?
-  end
-
-  def empty_message
-    content_tag(:p, "No entities found", class: "text-gray-500 text-center py-8")
-  end
-end
-```
-
-## Order Presenter with Number Formatting
-
-```ruby
-# app/presenters/order_presenter.rb
-class OrderPresenter < ApplicationPresenter
   delegate :id, :status, :total, :created_at, :items_count, to: :object
 
   # Currency formatting
@@ -334,11 +269,13 @@ class OrderPresenter < ApplicationPresenter
 end
 ```
 
-## Booking Presenter with Conditional Logic
+## Booking Decorator with Conditional Logic
 
 ```ruby
-# app/presenters/booking_presenter.rb
-class BookingPresenter < ApplicationPresenter
+# app/decorators/booking_decorator.rb
+class BookingDecorator < ApplicationDecorator
+  delegate_all
+
   delegate :id, :start_date, :end_date, :status, :user, to: :object
 
   # Status checks
@@ -408,56 +345,56 @@ class BookingPresenter < ApplicationPresenter
 end
 ```
 
+## Adding Context
+
+If you need to pass extra data to your decorators, you can use a context hash. Methods that create decorators take it as an option, for example:
+
+```ruby
+Article.first.decorate(context: {role: :admin})
+```
+
+The value passed to the :context option is then available in the decorator through the context method, i.e.:
+
+```ruby
+class ArticleDecorator < ApplicationDecorator
+  def delete_button
+    return unless context[:role] == :admin
+
+    # ...
+  end
+end
+```
+
 ## Usage in Views
 
 ### Basic Usage
 
 ```erb
 <%# app/views/entities/show.html.erb %>
-<% presenter = EntityPresenter.new(@entity, self) %>
+<% decorator = @entity.decorate # or EntityDecorator.decorate(@entity) %>
 
 <div class="entity-card">
-  <h1><%= presenter.formatted_name %></h1>
+  <h1><%= decorator.formatted_name %></h1>
 
   <div class="metadata">
-    <%= presenter.status_badge %>
-    <span class="date"><%= presenter.formatted_created_at %></span>
+    <%= decorator.status_badge %>
+    <span class="date"><%= decorator.formatted_created_at %></span>
   </div>
 
-  <p><%= presenter.display_description %></p>
+  <p><%= decorator.display_description %></p>
 
   <div class="actions">
-    <%= presenter.edit_link %>
-    <%= presenter.delete_link %>
+    <%= decorator.edit_link %>
+    <%= decorator.delete_link %>
   </div>
 </div>
-```
-
-### Using Helper Method
-
-```ruby
-# app/helpers/application_helper.rb
-module ApplicationHelper
-  def present(object, klass = nil)
-    klass ||= "#{object.class}Presenter".constantize
-    klass.new(object, self)
-  end
-end
-```
-
-```erb
-<%# app/views/entities/show.html.erb %>
-<% entity = present(@entity) %>
-
-<h1><%= entity.formatted_name %></h1>
-<%= entity.status_badge %>
 ```
 
 ### Collection Usage
 
 ```erb
 <%# app/views/entities/index.html.erb %>
-<% entities = @entities.map { |e| EntityPresenter.new(e, self) } %>
+<% entities = @entities.decorate %>
 
 <% entities.each do |entity| %>
   <div class="entity-item">

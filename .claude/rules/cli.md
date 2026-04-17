@@ -65,7 +65,7 @@ bin/rails routes                                 # All routes
 bin/rails routes -g user                         # Filter routes by pattern
 ```
 
-## Solid Queue (Background Jobs)
+## Sidekiq (Background Jobs)
 ```bash
 bin/rails solid_queue:start                      # Start queue worker
 ```

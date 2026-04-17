@@ -165,9 +165,9 @@ end
 ### 6. Background Job (Async Processing)
 
 ```ruby
-# app/jobs/event_created_job.rb
+# app/sidekiq/event_created_job.rb
 class EventCreatedJob < ApplicationJob
-  queue_as :default
+  sidekiq_options queue: :default
 
   def perform(event_id)
     event = Event.find(event_id)
@@ -241,11 +241,11 @@ class DashboardStatsQuery
 end
 ```
 
-### 9. Presenter (View Formatting)
+### 9. Decorator (View Formatting)
 
 ```ruby
-# app/presenters/event_presenter.rb
-class EventPresenter < BasePresenter
+# app/decorators/event_decorator.rb
+class EventDecorator < ApplicationDecorator
   STATUS_COLORS = {
     draft: "bg-slate-100 text-slate-800",
     confirmed: "bg-green-100 text-green-800",
@@ -287,7 +287,7 @@ end
 # app/components/event_card_component.rb
 class EventCardComponent < ApplicationComponent
   def initialize(event:)
-    @event = EventPresenter.new(event)
+    @event = event.decorate
   end
 
   attr_reader :event
@@ -351,8 +351,8 @@ Controller → Service, Query, Policy, Form
 Service    → Model, Query, Job, Mailer, Channel
 Query      → Model (read-only)
 Job        → Service, Mailer, Channel
-Presenter  → Model (read-only)
-Component  → Presenter, Policy (for authorization checks)
+Decorator  → Model (read-only)
+Component  → Decorator, Policy (for authorization checks)
 Channel    → Query (for broadcasting data)
 ```
 
@@ -360,7 +360,7 @@ Channel    → Query (for broadcasting data)
 
 ```
 Model      → Controller, Service, Job (avoid callbacks that do this)
-Presenter  → Service, Job (no side effects)
+Decorator  → Service, Job (no side effects)
 Query      → Service, Job (read-only)
 Component  → Service, Job (presentation only)
 ```
@@ -376,14 +376,14 @@ Request → Controller → Model → View
 ### Pattern 2: Complex Business Logic
 
 ```
-Request → Controller → Service → Model → Presenter → Component → Response
+Request → Controller → Service → Model → Decorator → Component → Response
                     ↘ Job → Mailer
 ```
 
 ### Pattern 3: Dashboard with Stats
 
 ```
-Request → Controller → Query → Presenter → Component → Response
+Request → Controller → Query → Decorator → Component → Response
                     ↘ Policy (for authorization)
 ```
 
@@ -410,7 +410,7 @@ Request → Controller → Form Object → Service → Models → Response
 | Model | Model spec | Validations, associations, scopes |
 | Policy | Policy spec | Authorization rules |
 | Form | Unit spec | Validations, attribute handling |
-| Presenter | Unit spec | Formatting, HTML output |
+| Decorator | Unit spec | Formatting, HTML output |
 | Component | Component spec | Rendering |
 | Job | Job spec | Execution, side effects |
 | Mailer | Mailer spec | Recipients, content |

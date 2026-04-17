@@ -292,5 +292,5 @@ SolidQueue::Job.where('finished_at < ?', 1.week.ago).delete_all
 |---------|-------------|
 | `perform_async(args)` | `perform_later(args)` |
 | `perform_in(5.minutes, args)` | `set(wait: 5.minutes).perform_later(args)` |
-| `sidekiq_options queue: 'critical'` | `queue_as :critical` |
+| `queue_as: 'critical'` | `queue_as :critical` |
 | `sidekiq_retry_in` | `retry_on` with `wait:` |

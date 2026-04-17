@@ -91,7 +91,7 @@ end
 ### Instance Variable Memoization
 
 ```ruby
-class EventPresenter < BasePresenter
+class EventDecorator < ApplicationDecorator
   def vendor_count
     @vendor_count ||= event.vendors.count
   end

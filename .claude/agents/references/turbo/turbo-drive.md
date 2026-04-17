@@ -40,7 +40,7 @@ end
 <%= link_to "External", external_url, data: { turbo: false } %>
 
 <%# Disable for a form %>
-<%= form_with model: @resource, data: { turbo: false } do |f| %>
+<%= simple_form_for @resource, html: { data: { turbo: false } } do |f| %>
   <%# Full page reload on submit %>
 <% end %>
 
