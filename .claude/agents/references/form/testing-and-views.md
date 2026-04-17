@@ -8,7 +8,7 @@ require "rails_helper"
 
 RSpec.describe EntityRegistrationForm do
   describe "#save" do
-    subject(:form) { described_class.new(attributes) }
+    subject(:form) { described_class.new }
 
     let(:owner) { create(:user) }
     let(:attributes) do
@@ -28,23 +28,23 @@ RSpec.describe EntityRegistrationForm do
       end
 
       it "creates an entity" do
-        expect { form.save }.to change(Entity, :count).by(1)
+        expect { form.submit(attributes) }.to change(Entity, :count).by(1)
       end
 
       it "creates contact information" do
-        form.save
+        form.submit(attributes)
         expect(form.entity.contact_info).to be_present
         expect(form.entity.contact_info.email).to eq("contact@example.com")
       end
 
       it "sends a confirmation email" do
         expect {
-          form.save
+          form.submit(attributes)
         }.to have_enqueued_job(ActionMailer::MailDeliveryJob)
       end
 
       it "returns true" do
-        expect(form.save).to be true
+        expect(form.submit(attributes)).to be true
       end
     end
 
@@ -56,11 +56,11 @@ RSpec.describe EntityRegistrationForm do
       end
 
       it "does not create an entity" do
-        expect { form.save }.not_to change(Entity, :count)
+        expect { form.submit(attributes) }.not_to change(Entity, :count)
       end
 
       it "returns false" do
-        expect(form.save).to be false
+        expect(form.submit(attributes)).to be false
       end
 
       it "adds an error to name" do
@@ -115,12 +115,12 @@ RSpec.describe EntityWithItemsForm do
 
     context "with valid items" do
       it "creates the entity with items" do
-        expect { form.save }.to change(Entity, :count).by(1)
+        expect { form.submit(attributes) }.to change(Entity, :count).by(1)
                                 .and change(Item, :count).by(2)
       end
 
       it "correctly associates the items" do
-        form.save
+        form.submit(attributes)
         expect(form.entity.items.count).to eq(2)
         expect(form.entity.items.pluck(:name)).to contain_exactly(
           "Item One", "Item Two"
@@ -154,9 +154,9 @@ class EntitiesController < ApplicationController
   end
 
   def create
-    @form = EntityRegistrationForm.new(registration_params)
+    @form = EntityRegistrationForm.new
 
-    if @form.save
+    if @form.submit(registration_params)
       redirect_to @form.entity, notice: "Entity created successfully"
     else
       render :new, status: :unprocessable_entity
@@ -173,11 +173,11 @@ class EntitiesController < ApplicationController
 end
 ```
 
-## ERB View: Classic Form
+## ERB/HTML View: Classic Form
 
 ```erb
 <%# app/views/entities/new.html.erb %>
-<%= form_with model: @form, url: entities_path, local: true do |f| %>
+<%= simple_form_for @form, url: entities_path, local: true do |f| %>
   <%= render "shared/error_messages", object: @form %>
 
   <%= f.hidden_field :owner_id %>
@@ -211,12 +211,12 @@ end
 <% end %>
 ```
 
-## ERB View: Nested Form with Stimulus
+## ERB/HAML View: Nested Form with Stimulus
 
 ```erb
 <%# app/views/entities/new_with_items.html.erb %>
-<%= form_with model: @form, url: entities_path,
-              data: { controller: "nested-form" } do |f| %>
+<%= simple_form_for @form, url: entities_path,
+                   html: { data: { controller: "nested-form" } } do |f| %>
 
   <%= f.text_field :name %>
   <%= f.text_area :description %>
@@ -226,7 +226,7 @@ end
 
     <template data-nested-form-target="template">
       <div class="item">
-        <%= f.fields_for :items, OpenStruct.new do |item_f| %>
+        <%= f.simple_fields_for :items, OpenStruct.new do |item_f| %>
           <%= item_f.text_field :name, placeholder: "Item name" %>
           <%= item_f.text_area :description, placeholder: "Description" %>
           <%= item_f.number_field :price, step: 0.01, placeholder: "Price" %>

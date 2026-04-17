@@ -30,7 +30,7 @@ The 2025 Rails consensus has evolved beyond "Fat Models" to **Skinny Everything*
 | Model exceeds ~100 lines | Extract business logic to services, complex queries to query objects |
 | Query joins multiple tables or has conditional clauses | Extract to query object |
 | Form touches multiple models or has custom validation | Extract to form object |
-| Display formatting logic in model | Extract to presenter |
+| Display formatting logic in model | Extract to decorator |
 | UI element reused across 2+ views | Extract to ViewComponent |
 | Shared behavior across 2+ models (narrow, simple) | Extract to concern |
 | 5+ concrete implementations with identical structure | Extract base class |
@@ -54,7 +54,7 @@ Is it shared behavior?
   └── Operation on the model (checkout, import, sync) → Service object
 
 Is it display logic?
-  ├── Formatting one model's data → Presenter (SimpleDelegator)
+  ├── Formatting one model's data → Decorator (Draper::Decorator)
   ├── Reusable UI element → ViewComponent
   └── Simple helper method → Keep in helper (use sparingly)
 
@@ -102,7 +102,7 @@ Before extracting, verify you're not creating:
 - [ ] A service that wraps a single `model.update!` call (Service Graveyard)
 - [ ] A base class for only 2 services (Premature Abstraction)
 - [ ] A concern with multiple responsibilities (Kitchen Sink Concern)
-- [ ] A helper that should be a presenter or component
+- [ ] A helper that should be a decorator or component
 - [ ] An abstraction for a hypothetical future need (YAGNI violation)
 
 ## Reference

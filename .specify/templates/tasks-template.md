@@ -24,7 +24,7 @@ description: "Task list template for feature implementation"
 - **Controllers**: `app/controllers/` (namespaced: `app/controllers/admin/`)
 - **Views**: `app/views/` (namespaced: `app/views/admin/`)
 - **Services**: `app/services/`
-- **Jobs**: `app/jobs/`
+- **Jobs**: `app/sidekiq/`
 - **Mailers**: `app/mailers/`
 - **Stimulus**: `app/javascript/controllers/`
 - **Migrations**: `db/migrate/`

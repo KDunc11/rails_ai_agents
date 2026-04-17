@@ -49,7 +49,7 @@ resize_to_limit: [300, 300], format: :webp, saver: { quality: 80 }
 
 ```erb
 <%# app/views/users/_form.html.erb %>
-<%= form_with model: @user do |f| %>
+<%= simple_form_form @user do |f| %>
   <div class="field">
     <%= f.label :avatar %>
     <%= f.file_field :avatar, accept: "image/png,image/jpeg,image/webp" %>
@@ -70,7 +70,7 @@ resize_to_limit: [300, 300], format: :webp, saver: { quality: 80 }
 
 ```erb
 <%# app/views/events/_form.html.erb %>
-<%= form_with model: @event do |f| %>
+<%= simple_form_for @event do |f| %>
   <div class="field">
     <%= f.label :photos %>
     <%= f.file_field :photos, multiple: true, accept: "image/*" %>

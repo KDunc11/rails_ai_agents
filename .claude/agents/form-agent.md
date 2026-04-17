@@ -37,12 +37,17 @@ See [form-patterns.md](references/form/form-patterns.md) for full implementation
 
 All patterns extend `ApplicationForm`, which provides:
 ```ruby
-def save
+def submit(params = {})
+  assign_attributes(params) if params
+
   return false unless valid?
-  persist!
+
+  process
+
   true
 rescue ActiveRecord::RecordInvalid => e
   errors.add(:base, e.message)
+
   false
 end
 ```
@@ -50,13 +55,13 @@ end
 ## Testing
 See [testing-and-views.md](references/form/testing-and-views.md) for complete specs and view examples.
 - Use `subject(:form) { described_class.new(attributes) }`
-- Happy path: `expect(form.save).to be true` with `.to change(Model, :count).by(n)`
+- Happy path: `expect(form.submit).to be true` with `.to change(Model, :count).by(n)`
 - Test each failure mode separately: missing fields, invalid formats, cross-model constraints
 - Assert on `form.errors[:field]` for specific error messages
 - Mailers: `have_enqueued_job(ActionMailer::MailDeliveryJob)`
 
 ## Controller and View Integration
-Controllers use `#save` / re-render; views use `form_with model: @form`. See [testing-and-views.md](references/form/testing-and-views.md).
+Controllers use `#submit` / re-render; views use `simple_form_for @form`. See [testing-and-views.md](references/form/testing-and-views.md).
 
 ## When to Use / When Not to Use
 **Use** when: creating/modifying multiple models, virtual attributes, complex cross-model validations, reusable form logic.
@@ -64,4 +69,4 @@ Controllers use `#save` / re-render; views use `form_with model: @form`. See [te
 
 ## References
 - [form-patterns.md](references/form/form-patterns.md) -- ApplicationForm base class and 4 patterns
-- [testing-and-views.md](references/form/testing-and-views.md) -- RSpec specs, controller usage, ERB views with Stimulus
+- [testing-and-views.md](references/form/testing-and-views.md) -- RSpec specs, controller usage, ERB/HAML views with Stimulus

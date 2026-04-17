@@ -12,9 +12,9 @@
 ## Technical Context
 
 **Language/Version**: Ruby 3.3.6, Rails 8.1.3
-**Primary Dependencies**: Hotwire (Turbo + Stimulus), ImportMap, Propshaft, SQLite3
-**Storage**: SQLite3 (primary, cache via Solid Cache, queue via Solid Queue, cable via Solid Cable)
-**Testing**: Minitest (unit/integration), Capybara + Selenium (system tests)
+**Primary Dependencies**: Hotwire (Turbo + Stimulus), ESBuild, Propshaft, Postgres, SQLite3
+**Storage**: PostgreSQL (primary), SQLite3 (cache via Solid Cache, cable via Solid Cable)
+**Testing**: RSpec (unit/integration), Capybara + Selenium (system tests)
 **Target Platform**: Web application, single server (Kamal/Docker deployment)
 **Project Type**: Web application
 **Performance Goals**: [feature-specific, e.g., page loads <1s, form submission <X seconds or NEEDS CLARIFICATION]
@@ -50,7 +50,7 @@ app/
 ├── views/           # ERB templates, Turbo Frame/Stream responses
 ├── services/        # Business logic (side effects, multi-model operations)
 ├── mailers/         # Email delivery
-├── jobs/            # Solid Queue background jobs
+├── sidekiq/         # Sidekiq background jobs
 ├── channels/        # Action Cable / Solid Cable channels
 ├── helpers/         # View helpers
 └── javascript/
@@ -64,13 +64,14 @@ config/
 db/
 └── migrate/         # ActiveRecord migrations (reversible, no mixed DDL+data)
 
-test/
+spec/
+├── support/         # Any additional files, images, custom matchers, etc.
 ├── models/          # Model unit tests
 ├── controllers/     # Controller integration tests
 ├── services/        # Service unit tests
 ├── system/          # Capybara browser tests
 ├── integration/     # Multi-controller flow tests
-└── fixtures/        # Test data fixtures
+└── factories/       # Test factories
 ```
 
 **Structure Decision**: Standard Rails MVC layout. [Document namespace strategy

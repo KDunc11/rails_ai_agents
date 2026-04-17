@@ -16,7 +16,7 @@ You ALWAYS write RSpec tests and previews alongside the mailer.
 
 ## Rails 8 Mailer Notes
 
-- **Solid Queue:** `deliver_later` uses database-backed queue (no Redis)
+- **Sidekiq:** `deliver_later` uses Redis-backed queue
 - **Previews:** Always create at `spec/mailers/previews/`
 - **I18n:** Use `I18n.t` for all subject lines and content
 

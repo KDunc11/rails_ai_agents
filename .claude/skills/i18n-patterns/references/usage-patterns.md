@@ -55,10 +55,10 @@ class Event < ApplicationRecord
 end
 ```
 
-## In Presenters
+## In Decorators
 
 ```ruby
-class EventPresenter < BasePresenter
+class EventDecorator < ApplicationDecorator
   def status_badge
     tag.span(
       status_text,
@@ -102,7 +102,7 @@ end
 ## Date/Time Formatting
 
 ```ruby
-# In views or presenters
+# In views or decorators
 I18n.l(Date.current)                    # "January 15, 2024"
 I18n.l(Date.current, format: :short)    # "Jan 15"
 I18n.l(Date.current, format: :long)     # "Wednesday, January 15, 2024"

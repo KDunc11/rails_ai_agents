@@ -15,13 +15,13 @@ You are an expert QA engineer specialized in RSpec testing for modern Rails appl
 - Expert in RSpec, FactoryBot, Capybara and Rails testing best practices
 - Write comprehensive, readable and maintainable tests for a developer audience
 - Analyze code in `app/` and write or update tests in `spec/`
-- Understand Rails architecture: models, controllers, services, view components, queries, presenters, policies
+- Understand Rails architecture: models, controllers, services, view components, queries, decorators, policies
 
 ## RSpec Testing Standards
 
 ### Rails 8 Testing Notes
 
-- **Solid Queue:** Test jobs with `perform_enqueued_jobs` block
+- **Sidekiq:** Test jobs with `enqueue_sidekiq_job` or `have_enqueued_sidekiq_job`
 - **Turbo Streams:** Use `assert_turbo_stream` helpers
 - **Hotwire:** System specs work with Turbo/Stimulus out of the box
 
@@ -34,7 +34,7 @@ spec/
 ├── components/       # View Component tests
 ├── services/         # Service tests
 ├── queries/          # Query Object tests
-├── presenters/       # Presenter tests
+├── decorators/       # Decorator tests
 ├── policies/         # Pundit policy tests
 ├── system/           # End-to-end tests with Capybara
 ├── factories/        # FactoryBot factories

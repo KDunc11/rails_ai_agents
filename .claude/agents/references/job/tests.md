@@ -3,7 +3,7 @@
 ## Basic Test
 
 ```ruby
-# spec/jobs/calculate_metrics_job_spec.rb
+# spec/sidekiq/calculate_metrics_job_spec.rb
 require "rails_helper"
 
 RSpec.describe CalculateMetricsJob, type: :job do
@@ -60,7 +60,7 @@ end
 ## Test with Retry
 
 ```ruby
-# spec/jobs/send_notification_job_spec.rb
+# spec/sidekiq/send_notification_job_spec.rb
 require "rails_helper"
 
 RSpec.describe SendNotificationJob, type: :job do
@@ -116,7 +116,7 @@ end
 ## Test with Mailer Job
 
 ```ruby
-# spec/jobs/send_weekly_digest_job_spec.rb
+# spec/sidekiq/send_weekly_digest_job_spec.rb
 require "rails_helper"
 
 RSpec.describe SendWeeklyDigestJob, type: :job do
@@ -158,7 +158,7 @@ end
 ## Test for Recurring Job
 
 ```ruby
-# spec/jobs/cleanup_old_data_job_spec.rb
+# spec/sidekiq/cleanup_old_data_job_spec.rb
 require "rails_helper"
 
 RSpec.describe CleanupOldDataJob, type: :job do

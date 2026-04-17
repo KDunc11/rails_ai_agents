@@ -31,12 +31,13 @@ cp -r .claude/ /path/to/your-rails-app/.claude/
 | `policy-agent` | Pundit authorization policies | sonnet |
 | `form-agent` | Multi-model forms, wizard forms | sonnet |
 | `query-agent` | Complex queries, N+1 prevention | sonnet |
-| `presenter-agent` | View logic separation with SimpleDelegator | sonnet |
+| `decorator-agent` | View logic separation with SimpleDelegator | sonnet |
 | `viewcomponent-agent` | Reusable, tested UI components | sonnet |
-| `job-agent` | Background jobs with Solid Queue | sonnet |
+| `job-agent` | Background jobs with Sidekiq | sonnet |
 | `mailer-agent` | ActionMailer with previews and templates | sonnet |
 | `turbo-agent` | Turbo Frames, Streams, Drive | sonnet |
 | `stimulus-agent` | Stimulus controllers | sonnet |
+| `scss-agent` | SCSS styling | sonnet |
 | `tailwind-agent` | Tailwind CSS styling | sonnet |
 | `rspec-agent` | RSpec tests | sonnet |
 | `implementation-agent` | TDD GREEN phase orchestrator (worktree isolation) | sonnet |
@@ -89,10 +90,10 @@ cp -r .claude/ /path/to/your-rails-app/.claude/
 | `services.md` | `app/services/**`, `spec/services/**` |
 | `queries.md` | `app/queries/**`, `spec/queries/**` |
 | `policies.md` | `app/policies/**`, `spec/policies/**` |
-| `jobs.md` | `app/jobs/**`, `spec/jobs/**` |
+| `jobs.md` | `app/sidekiq/**`, `spec/sidekiq/**` |
 | `mailers.md` | `app/mailers/**`, `spec/mailers/**` |
 | `migrations.md` | `db/migrate/**`, `db/schema.rb` |
-| `views.md` | `app/views/**`, `app/components/**`, `app/presenters/**` |
+| `views.md` | `app/views/**`, `app/components/**`, `app/decorator/**` |
 | `testing.md` | `spec/**` |
 | `principles.md` | `app/**/*.rb` |
 | `anti-patterns.md` | `app/**/*.rb`, `spec/**/*.rb` |

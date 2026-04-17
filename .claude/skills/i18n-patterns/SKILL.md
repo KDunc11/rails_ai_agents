@@ -5,7 +5,7 @@ description: >-
   Use when adding translations, managing locales, localizing dates/currencies,
   pluralization, or when user mentions i18n, translations, locales, or
   multi-language. WHEN NOT: English-only applications without localization
-  needs, formatting handled by presenters, or date/number formatting in
+  needs, formatting handled by decorators, or date/number formatting in
   non-user-facing code.
 paths: "config/locales/**/*.yml, app/views/**/*.erb"
 ---
@@ -68,7 +68,7 @@ See [locale-files.md](references/locale-files.md) for complete YAML examples for
 - Use **lazy lookup** in views: `t(".title")` resolves to `"events.index.title"`
 - Use **`_html` suffix** for strings containing HTML markup
 - Use **`I18n.l`** (localize) for dates, times, and numbers — not `I18n.t`
-- Use **`I18n.t`** with full key path in models, services, and presenters
+- Use **`I18n.t`** with full key path in models, services, and decorators
 - Pass dynamic values via **interpolation**: `t(".greeting", name: user.name)`
 
 ### In Views
@@ -86,14 +86,14 @@ See [locale-files.md](references/locale-files.md) for complete YAML examples for
 redirect_to @event, notice: t(".success")
 ```
 
-### In Models/Presenters
+### In Models/Decorators
 
 ```ruby
 I18n.t("activerecord.attributes.event/statuses.#{status}")
 I18n.l(event_date, format: :long)
 ```
 
-See [usage-patterns.md](references/usage-patterns.md) for full examples including presenters, components, date/currency formatting, and pluralization.
+See [usage-patterns.md](references/usage-patterns.md) for full examples including decorators, components, date/currency formatting, and pluralization.
 
 ## Locale Switching
 
@@ -202,5 +202,5 @@ t("hello") + " " + t("world")  # BAD
 ## References
 
 - [locale-files.md](references/locale-files.md) — YAML locale file examples for models, views, shared keys, and components
-- [usage-patterns.md](references/usage-patterns.md) — Usage examples in views, controllers, models, presenters, components, and formatting
+- [usage-patterns.md](references/usage-patterns.md) — Usage examples in views, controllers, models, decorators, components, and formatting
 - [testing.md](references/testing.md) — RSpec specs and i18n-tasks for translation coverage

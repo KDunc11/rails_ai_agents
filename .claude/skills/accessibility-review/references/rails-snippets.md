@@ -95,7 +95,7 @@ Polite for notices, assertive for alerts.
 ## 4. Form with accessible errors
 
 ```erb
-<%= form_with model: @user, class: "space-y-4" do |f| %>
+<%= simple_form_for @user, html: { class: "space-y-4" } do |f| %>
   <% if @user.errors.any? %>
     <div role="alert" class="rounded-md bg-red-50 p-4 text-red-900"
          data-controller="focus-on-mount">

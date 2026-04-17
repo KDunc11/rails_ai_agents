@@ -3,10 +3,8 @@
 ## 1. Simple and Idempotent Job
 
 ```ruby
-# app/jobs/calculate_metrics_job.rb
+# app/sidekiq/calculate_metrics_job.rb
 class CalculateMetricsJob < ApplicationJob
-  queue_as :default
-
   def perform(entity_id)
     entity = Entity.find_by(id: entity_id)
     return unless entity # Idempotent: ignore if deleted
@@ -29,9 +27,9 @@ end
 ## 2. Job with Custom Retry
 
 ```ruby
-# app/jobs/send_notification_job.rb
+# app/sidekiq/send_notification_job.rb
 class SendNotificationJob < ApplicationJob
-  queue_as :notifications
+  sidekiq_options queue: :notifications
 
   # Retry up to 5 times with exponential backoff
   retry_on StandardError, wait: :exponentially_longer, attempts: 5
@@ -69,9 +67,9 @@ end
 ## 3. Job with Batch Processing
 
 ```ruby
-# app/jobs/send_weekly_digest_job.rb
+# app/sidekiq/send_weekly_digest_job.rb
 class SendWeeklyDigestJob < ApplicationJob
-  queue_as :mailers
+  sidekiq_options queue: :mailers
 
   def perform
     log_job_execution("Starting weekly digest sending")
@@ -100,9 +98,9 @@ end
 ## 4. Job with Dependencies and Cascading Enqueue
 
 ```ruby
-# app/jobs/process_import_job.rb
+# app/sidekiq/process_import_job.rb
 class ProcessImportJob < ApplicationJob
-  queue_as :imports
+  sidekiq_options queue: :imports
 
   def perform(import_id)
     import = Import.find(import_id)
@@ -164,9 +162,9 @@ end
 ## 5. Job with Progress Tracking
 
 ```ruby
-# app/jobs/export_data_job.rb
+# app/sidekiq/export_data_job.rb
 class ExportDataJob < ApplicationJob
-  queue_as :exports
+  sidekiq_options queue: :exports
 
   def perform(user_id, export_type)
     user = User.find(user_id)
@@ -252,9 +250,9 @@ end
 ## 6. Recurring Cleanup Job
 
 ```ruby
-# app/jobs/cleanup_old_data_job.rb
+# app/sidekiq/cleanup_old_data_job.rb
 class CleanupOldDataJob < ApplicationJob
-  queue_as :maintenance
+  sidekiq_options queue: :maintenance
 
   def perform
     log_job_execution("Starting old data cleanup")

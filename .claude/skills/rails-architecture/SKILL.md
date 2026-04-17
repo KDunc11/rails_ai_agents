@@ -19,7 +19,7 @@ effort: high
 ```
 Where should this code go?
 |
-+- View/display formatting?       -> Presenter (@presenter-agent)
++- View/display formatting?       -> Decorator (@decorator-agent)
 +- Complex business logic?        -> Service Object (@service-agent)
 +- Complex database query?        -> Query Object (@query-agent)
 +- Shared behavior across models? -> Concern (/rails-concern skill)
@@ -41,7 +41,7 @@ Where should this code go?
 | **Model** | Data, validations, relations | Display logic, HTTP |
 | **Service** | Business logic, orchestration | HTTP, display logic |
 | **Query** | Complex database queries | Business logic |
-| **Presenter** | View formatting, badges | Business logic, queries |
+| **Decorator** | View formatting, badges | Business logic, queries |
 | **Policy** | Authorization rules | Business logic |
 | **Component** | Reusable UI encapsulation | Business logic |
 | **Job** | Async processing | HTTP, display logic |
@@ -56,8 +56,8 @@ Where should this code go?
 | Simple CRUD (< 10 lines) | Keep in controller | Service object |
 | Used only once | Inline the code | Abstraction |
 | Simple query with 1-2 conditions | Model scope | Query object |
-| Basic text formatting | Helper method | Presenter |
-| Single model form | `form_with model:` | Form object |
+| Basic text formatting | Helper method | Decorator |
+| Single model form | `simple_form_for` | Form object |
 | Simple partial without logic | Partial | ViewComponent |
 
 ## When TO Abstract
@@ -117,7 +117,7 @@ end
 | Feature | Purpose | Skill/Agent |
 |---------|---------|-------------|
 | Authentication | `has_secure_password` generator | /authentication-flow |
-| Background Jobs | Solid Queue (database-backed) | /solid-queue-setup, @job-agent |
+| Background Jobs | Sidekiq (redis-backed) | /sidekiq-setup, @job-agent |
 | Real-time | Action Cable + Solid Cable | /action-cable-patterns |
 | Caching | Solid Cache (database-backed) | /caching-strategies |
 | Assets | Propshaft + Import Maps | (built-in) |
@@ -130,7 +130,7 @@ end
 | Model | Unit | Validations, scopes, methods |
 | Service | Unit | Business logic, edge cases |
 | Query | Unit | Query results, tenant isolation |
-| Presenter | Unit | Formatting, HTML output |
+| Decorator | Unit | Formatting, HTML output |
 | Controller | Request | Integration, HTTP flow |
 | Component | Component | Rendering, variants |
 | Policy | Unit | Authorization rules |
@@ -143,7 +143,7 @@ end
 3. **Service** - Create for complex logic (@service-agent)
 4. **Query** - Add for complex queries (@query-agent)
 5. **Controller** - Keep it thin (@controller-agent)
-6. **Presenter** - Format for display (@presenter-agent)
+6. **Decorator** - Format for display (@decorator-agent)
 7. **Component** - Build reusable UI (@viewcomponent-agent)
 8. **Mailer** - Add transactional emails (@mailer-agent)
 9. **Job** - Add background processing (@job-agent)

@@ -138,7 +138,7 @@ Each component handles one aspect of the system. Rails MVC is the primary expres
 | Service | Multi-step business operations |
 | Query | Complex database queries |
 | Policy | Authorization rules |
-| Presenter | Display formatting |
+| Decorator | Display formatting |
 | Component | Reusable UI elements |
 
 ### Single Source of Truth
@@ -295,7 +295,7 @@ For the view layer:
     v
 [View/Template]  ERB markup only. No logic.
     |
-    +---> [Presenter]     Format data for display.
+    +---> [Decorator]     Format data for display.
     +---> [Component]     Reusable UI element with tests.
     +---> [Helper]        Simple view utilities (use sparingly).
 ```
@@ -311,9 +311,9 @@ app/
   queries/         # Complex database queries
   forms/           # Multi-model form objects
   policies/        # Pundit authorization
-  presenters/      # View formatting (SimpleDelegator)
+  decorators/      # View formatting (Draper::Decorator)
   components/      # ViewComponents (reusable UI)
-  jobs/            # Background jobs (Solid Queue)
+  sidekiq/         # Background jobs (Sidekiq)
   mailers/         # Email delivery
 ```
 
@@ -324,7 +324,7 @@ app/
 | Service Object | Controller action exceeds ~10 lines of business logic, logic spans multiple models, external API calls, needs isolated testing | Simple CRUD, single-model operations, logic fits naturally in the model |
 | Query Object | Query joins multiple tables, has conditional clauses, is reused across controllers | Single-table scope, one-liner query |
 | Form Object | Form touches multiple models, has custom validation logic, wizard/multi-step forms | Single-model form, standard validations |
-| Presenter | Model has display formatting methods, conditional display logic | Simple attribute display |
+| Decorator | Model has display formatting methods, conditional display logic | Simple attribute display |
 | ViewComponent | UI element is reused across views, needs unit testing, has complex markup | One-off view snippet |
 | Concern | Behavior is shared across multiple models, is simple and narrowly focused | Logic belongs to one model, complex behavior |
 | Policy | Authorization logic, role-based access | No access control needed |

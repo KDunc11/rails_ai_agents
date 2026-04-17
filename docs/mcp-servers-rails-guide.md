@@ -138,7 +138,7 @@ claude mcp add context7 -- npx -y @upstash/context7-mcp@latest
 **Usage:** Add "use context7" to any prompt:
 ```
 Set up Turbo Streams for live updates. use context7
-Configure Solid Queue for background jobs. use context7
+Configure Sidekiq for background jobs. use context7
 ```
 
 **Limits:** Free tier: 1,000 requests/month, 60/hour (reduced January 2026).

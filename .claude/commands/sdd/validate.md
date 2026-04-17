@@ -70,7 +70,7 @@ For each **Key Entity** in the spec, check file existence using Rails naming con
 | `User` (with CRUD) | `app/controllers/users_controller.rb`, `spec/requests/users_spec.rb` |
 | `User` (with business logic) | `app/services/users/` or `app/services/*user*` |
 | `User` (with authorization) | `app/policies/user_policy.rb`, `spec/policies/user_policy_spec.rb` |
-| `User` (with background job) | `app/jobs/*user*_job.rb` |
+| `User` (with background job) | `app/sidekiq/*user*_job.rb` |
 | `User` (with email) | `app/mailers/*user*_mailer.rb` |
 
 For each **Functional Requirement**, infer expected files from the verb + entity:

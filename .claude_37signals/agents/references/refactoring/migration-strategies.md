@@ -156,9 +156,9 @@ production:
       processes: 1
       polling_interval: 0.1
 
-# app/jobs/export_job.rb
+# app/sidekiq/export_job.rb
 class ExportJob < ApplicationJob
-  queue_as :default
+  sidekiq_options queue: :default
   retry_on StandardError, wait: :polynomially_longer, attempts: 3
 
   def perform(report)

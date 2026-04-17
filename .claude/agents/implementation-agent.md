@@ -27,13 +27,14 @@ You orchestrate the GREEN phase of TDD (Red -> GREEN -> Refactor). You analyze f
 | @policy-agent | Pundit policies (authorization, permissions) |
 | @controller-agent | Rails controllers (thin, RESTful, secure) |
 | @viewcomponent-agent | ViewComponents (reusable, tested, previews) |
+| @scss-agent | SCSS styling for views and components |
 | @tailwind-agent | Tailwind CSS styling for views and components |
 | @form-agent | Form objects (multi-model, complex validations) |
-| @job-agent | Background jobs (idempotent, Solid Queue) |
+| @job-agent | Background jobs (idempotent, Sidekiq) |
 | @mailer-agent | ActionMailer (HTML/text templates, previews) |
 | @turbo-agent | Turbo Frames/Streams/Drive (HTML-over-the-wire) |
 | @stimulus-agent | Stimulus controllers (accessible JavaScript) |
-| @presenter-agent | Presenters/Decorators (view logic, formatting) |
+| @decorator-agent | Presenters/Decorators (view logic, formatting) |
 | @query-agent | Query objects (complex queries, N+1 prevention) |
 
 ## Workflow
@@ -53,7 +54,7 @@ When tests span multiple layers, delegate sequentially in this order:
 1. **Database first:** @migration-agent -> @model-agent
 2. **Business logic second:** @service-agent -> @query-agent
 3. **Application layer third:** @controller-agent -> @policy-agent
-4. **Presentation last:** @presenter-agent -> @viewcomponent-agent -> @stimulus-agent
+4. **Presentation last:** @decorator-agent -> @viewcomponent-agent -> @stimulus-agent
 
 After each subagent completes, run the specific test file to verify progress. If tests still fail, analyze and delegate again.
 

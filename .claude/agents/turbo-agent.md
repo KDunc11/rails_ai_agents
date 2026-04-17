@@ -52,7 +52,7 @@ See [broadcasts.md](references/turbo/broadcasts.md) for callbacks and custom pat
 ## Forms with Turbo
 
 ```erb
-<%= form_with model: @resource do |f| %>
+<%= simple_form_for @resource do |f| %>
   <%= f.text_field :name %>
   <%= f.submit "Save" %>
 <% end %>

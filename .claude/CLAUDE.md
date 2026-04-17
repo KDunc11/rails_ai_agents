@@ -6,7 +6,7 @@
 - **Frontend:** Hotwire (Turbo + Stimulus), Tailwind CSS 4, ViewComponent
 - **Testing:** RSpec, FactoryBot, Shoulda Matchers, Capybara
 - **Auth:** `has_secure_password` (Rails 8 built-in), Pundit (authorization)
-- **Background Jobs:** Solid Queue (database-backed, no Redis)
+- **Background Jobs:** Sidekiq (database-backed, no Redis)
 - **Caching:** Solid Cache | **WebSockets:** Solid Cable
 - **Assets:** Propshaft + Import Maps (no Node.js)
 - **Deployment:** Kamal 2 + Thruster
@@ -22,9 +22,9 @@ app/
   queries/         # Complex database queries. Returns relations or hashes.
   forms/           # Multi-model form objects.
   policies/        # Pundit authorization. Default deny.
-  presenters/      # View formatting (SimpleDelegator).
+  decorators/      # View formatting (Draper Decorators).
   components/      # ViewComponents (reusable UI with tests).
-  jobs/            # Background jobs (Solid Queue). Must be idempotent.
+  sidekiq/          # Background jobs (Sidekiq). Must be idempotent.
   mailers/         # Email delivery. Always HTML + text templates.
 ```
 
@@ -77,5 +77,5 @@ See @docs/rails-development-principles.md for the complete development principle
 | Query | Namespaced + `Query` | `Entities::SearchQuery` |
 | Policy | Singular + `Policy` | `EntityPolicy` |
 | Job | Descriptive + `Job` | `ProcessPaymentJob` |
-| Presenter | Singular + `Presenter` | `EntityPresenter` |
+| Decorator | Singular + `Decorator` | `EntityDecorator` |
 | Form | Descriptive + `Form` | `EntityRegistrationForm` |
